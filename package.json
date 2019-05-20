@@ -1,0 +1,25 @@
+{
+    "name": "aaaray",
+    "version": "0.0.1",
+    "contributors": [
+        "murt <murt@unpossible.io>"
+    ],
+    "keywords": [
+        "async",
+        "await",
+        "array",
+        "promise",
+        "parallel",
+        "async-array",
+        "map"
+    ],
+    "repository": "murt/aaaray",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc"
+    },
+    "devDependencies": {
+        "jest": "24.8.0",
+        "typescript": "3.4.5"
+    }
+}

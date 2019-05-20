@@ -1,5 +1,7 @@
+// TODO: Index accessors? Supporting for-in or for-of? toString to print scalar values?
 export interface AAArray {
     map: (callback: AAMapDelegate) => Promise<AAArray>;
+    toArray: () => any[];
 }
 
 export interface AAMapDelegate {

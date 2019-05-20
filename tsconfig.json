@@ -8,9 +8,13 @@
     "compilerOptions": {
         "module": "commonjs",
         "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strict": true,
         "preserveConstEnums": true,
         "sourceMap": true,
         "outDir": "dist",
-        "lib": ["esnext"]
+        "target": "es5",
+        "lib": ["esnext"],
+        "types": ["jest", "node"]
     }
 }

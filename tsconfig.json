@@ -13,8 +13,10 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "outDir": "dist",
-        "target": "es5",
+        "target": "es6",
         "lib": ["esnext"],
-        "types": ["jest", "node"]
+        "types": ["jest", "node"],
+        "declaration": true,
+        "declarationDir": "dist"
     }
 }

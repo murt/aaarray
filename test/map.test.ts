@@ -40,6 +40,6 @@ describe("aaarray#map", () => {
         const results = await AA([1, 2, 3])
             .map(async n => `test-${n}`)
             .value();
-        expect(results).toEqual(["test1", "test2", "test3"]);
+        expect(results).toEqual(["test-1", "test-2", "test-3"]);
     });
 });

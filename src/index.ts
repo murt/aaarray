@@ -1,42 +1,57 @@
+/*
 export interface AAMapDelegate<T> {
     (value: T, index: number, arr: T[]): T | Promise<T>;
 }
+*/
 
-export interface AAFilterDelegate<T> {
-    (value: T, index: number, arr: T[]): any;
-}
+export type AAMapDelegate<T,U> = (value: T, index: number, array: T[]) => U | Promise<U>;
 
-type AADelegate<T> = AAMapDelegate<T> | AAFilterDelegate<T> | any;
+export type AAFilterDelegate<T> = (value: T, index: number, arr: T[]) => any;
+
+type AADelegate<T,U> = AAMapDelegate<T,U> | AAFilterDelegate<T>;
 
 enum AAAction {
     MAP,
     FILTER,
 }
 
+type AAActionDelegate = { action: AAAction, delegate: AADelegate<any, any> };
+
 export class AAArray<T> {
 
-    protected action?: { name: AAAction, delegate: AADelegate<T> };
+    protected readonly array: T[];
 
-    protected readonly parent?: AAArray<any>;
+    protected readonly queue: AAActionDelegate[];
 
-    protected readonly array?: Array<T> | null;
-
-    public constructor(array?: Array<T>, parent?: AAArray<any>) {
-        this.parent = parent;
+    public constructor(array: T[]) {
         this.array = array;
+        this.queue = [];
     }
 
-    public map<U>(callback: (value: T, index: number, array: T[]) => U | Promise<U>): AAArray<U> {
-        this.action = { name: AAAction.MAP, delegate: callback };
-        return new AAArray<U>(undefined, this);
+    public map<U>(callback: AAMapDelegate<T,U>): AAArray<U> {
+        this.queue.push({ action: AAAction.MAP, delegate: callback });
+        return this as unknown as AAArray<U>;
     }
 
     public async value(): Promise<T[]> {
-        return Promise.resolve([]); 
+        let arr = this.array;
+        while (this.queue.length) {
+            arr = await this.run(arr, this.queue.shift() as AAActionDelegate);
+        }
+        return arr;
+    }
+
+    private async run(arr: any[], item: AAActionDelegate): Promise<any[]> {
+        switch (item.action) {
+            case AAAction.MAP:
+                return Promise.all(arr.map(item.delegate)); 
+            default:
+                return arr;
+        }
     }
 
 }
 
-export default function AA<U>(array: Array<U>): AAArray<U> {
+export default function AA<U>(array: U[]): AAArray<U> {
     return new AAArray<U>(array);
 }

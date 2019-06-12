@@ -8,5 +8,6 @@
     "collectCoverage": true,
     "coverageDirectory": "coverage",
     "collectCoverageFrom": ["<rootDir>/src/**/*.ts"],
-    "coverageReporters": ["text"]
+    "coverageReporters": ["text"],
+    "verbose": true
 }

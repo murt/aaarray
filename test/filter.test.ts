@@ -5,7 +5,7 @@ describe("aaarray#filter", () => {
         const results = await AA([1, 2, 3])
             .filter(
                 async n =>
-                    await new Promise((resolve, reject) => {
+                    new Promise((resolve, reject) => {
                         setTimeout(() => resolve(n === 2), 500);
                     })
             )

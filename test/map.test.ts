@@ -5,7 +5,7 @@ describe("aaarray#map", () => {
         const results = await AA([1, 2, 3])
             .map(
                 async n =>
-                    await new Promise<number>((resolve, reject) => {
+                    new Promise<number>((resolve, reject) => {
                         setTimeout(() => resolve(n * 2), 500);
                     })
             )
@@ -41,5 +41,16 @@ describe("aaarray#map", () => {
             .map(async n => `test-${n}`)
             .value();
         expect(results).toEqual(["test-1", "test-2", "test-3"]);
+    });
+
+    // This test is designed to let the first callback finish and assign to the first index of the result array.
+    // Giving each successive callback a shorter timeout ensures that if they were to run out of order they would
+    // push their result out of order too.
+    it("should support ordered mapping", async () => {
+        const results: number[] = [];
+        await AA([1,2,3]).omap((n: number, i: number, array: number[]) => new Promise((resolve, reject) => {
+            setTimeout(() => { results.push(n); resolve(n); }, (array.length - i) * 100);
+        })).value();
+        expect(results).toEqual([1,2,3]);
     });
 });

@@ -6,7 +6,7 @@ describe("aaarray#filter", () => {
             .filter(
                 async n =>
                     new Promise((resolve, reject) => {
-                        setTimeout(() => resolve(n === 2), 500);
+                        setTimeout(() => resolve(n === 2), 100);
                     })
             )
             .value();

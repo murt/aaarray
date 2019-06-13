@@ -51,6 +51,10 @@ export class AAArray<T> {
         return arr;
     }
 
+    public async void(): Promise<void> {
+        await this.value();
+    }
+
     private async run(arr: any[], action: AAActionDelegate): Promise<any[]> {
         switch (action.action) {
             case AAAction.MAP:

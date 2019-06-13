@@ -6,7 +6,7 @@ describe("aaarray#map", () => {
             .map(
                 async n =>
                     new Promise<number>((resolve, reject) => {
-                        setTimeout(() => resolve(n * 2), 500);
+                        setTimeout(() => resolve(n * 2), 100);
                     })
             )
             .value();

@@ -13,7 +13,7 @@ enum AAAction {
 
 type AAActionDelegate = { action: AAAction; callback: AACallback<any, any>; ordered: boolean };
 
-export class AAArray<T> {
+export class AAArray<T> implements PromiseLike<T[]> {
     protected readonly array: T[];
 
     protected readonly queue: AAActionDelegate[];
@@ -28,7 +28,7 @@ export class AAArray<T> {
         return (this as unknown) as AAArray<U>;
     }
 
-    public omap<U>(callback: AAMapCallback<T, U>): AAArray<U> {
+    public mapOrdered<U>(callback: AAMapCallback<T, U>): AAArray<U> {
         this.queue.push({ action: AAAction.MAP, callback, ordered: true });
         return (this as unknown) as AAArray<U>;
     }
@@ -38,7 +38,7 @@ export class AAArray<T> {
         return this;
     }
 
-    public ofilter(callback: AAFilterCallback<T>): AAArray<T> {
+    public filterOrdered(callback: AAFilterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.FILTER, callback, ordered: true });
         return this;
     }
@@ -49,6 +49,22 @@ export class AAArray<T> {
             arr = await this.run(arr, this.queue.shift() as AAActionDelegate);
         }
         return arr;
+    }
+
+    public async then<TResult1 = T[], TResult2 = never>(
+        onfulfilled?: (value: T[]) => TResult1 | Promise<TResult1>,
+        onrejected?: (reason: any) => TResult2 | Promise<TResult2>
+    ): Promise<TResult1 | TResult2> {
+        try {
+            const value = await this.value();
+            return onfulfilled ? onfulfilled(value) : value as any;
+        } catch (err) {
+            if (onrejected) {
+                return onrejected(err);
+            } else {
+                throw err;
+            }
+        }
     }
 
     public async void(): Promise<void> {

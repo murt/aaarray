@@ -37,9 +37,9 @@ describe("aaarray#map", () => {
     // This test is designed to let the first callback finish and assign to the first index of the result array.
     // Giving each successive callback a shorter timeout ensures that if they were to run out of order they would
     // push their result out of order too.
-    it("should support ordered mapping", async () => {
+    it("should support serial mapping", async () => {
         const results: number[] = [];
-        await AA([1, 2, 3]).mapOrdered(
+        await AA([1, 2, 3]).mapSerial(
             (n: number, i: number, array: number[]) =>
                 new Promise((resolve, reject) => {
                     setTimeout(() => {

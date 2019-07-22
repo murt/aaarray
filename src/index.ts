@@ -1,6 +1,13 @@
-export type AAMapCallback<T, U> = (value?: T, index?: number, array?: T[]) => U | Promise<U>;
+export type AAMapCallback<T, U> = (value?: T, index?: number, arr?: T[]) => U | Promise<U>;
 
+// TODO: These are all just... super the same, could easily be a single type
 export type AAFilterCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
+
+export type AAFindCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
+
+export type AASomeCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
+
+export type AAEveryCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
 
 export type AATransform = (arr: any[]) => any[];
 
@@ -9,12 +16,13 @@ export type AATransform = (arr: any[]) => any[];
 type AACallback<T, U> = AAMapCallback<T, U> | AAFilterCallback<T> | AATransform;
 
 enum AAAction {
-    MAP,
+    CONCAT,
     FILTER,
+    MAP,
     SLICE,
 }
 
-type AAActionDelegate<C = AACallback<any, any>> = { action: AAAction; callback: C; ordered: boolean };
+type AAActionDelegate<C = AACallback<any, any>> = { action: AAAction; callback: C; serial?: boolean };
 
 export class AAArray<T> implements PromiseLike<T[]> {
     protected readonly array: T[];
@@ -26,34 +34,121 @@ export class AAArray<T> implements PromiseLike<T[]> {
         this.queue = [];
     }
 
-    public map<U>(callback: AAMapCallback<T, U>): AAArray<U> {
-        this.queue.push({ action: AAAction.MAP, callback, ordered: false });
-        return (this as unknown) as AAArray<U>;
+    public concat<U>(...values: (T | U | ConcatArray<T | U>)[]): AAArray<T | U> {
+        this.queue.push({
+            action: AAAction.CONCAT,
+            callback: (arr: T[]) => (arr as (T | U)[]).concat(...values),
+        });
+        return (this as unknown) as AAArray<T | U>;
     }
 
-    public mapOrdered<U>(callback: AAMapCallback<T, U>): AAArray<U> {
-        this.queue.push({ action: AAAction.MAP, callback, ordered: true });
-        return (this as unknown) as AAArray<U>;
+    public async every(callback: AAEveryCallback<T>): Promise<boolean> {
+        return (await Promise.all((await this.value()).map((v, i, a) => callback(v, i, a)))).every(v => Boolean(v));
+    }
+
+    public async everySerial(callback: AAEveryCallback<T>): Promise<boolean> {
+        const value = await this.value();
+        for (let i = 0; i < value.length; ++i) {
+            if (!(await callback(value[i], i, value))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public filter(callback: AAFilterCallback<T>): AAArray<T> {
-        this.queue.push({ action: AAAction.FILTER, callback, ordered: false });
+        this.queue.push({ action: AAAction.FILTER, callback, serial: false });
         return this;
     }
 
-    public filterOrdered(callback: AAFilterCallback<T>): AAArray<T> {
-        this.queue.push({ action: AAAction.FILTER, callback, ordered: true });
+    public filterSerial(callback: AAFilterCallback<T>): AAArray<T> {
+        this.queue.push({ action: AAAction.FILTER, callback, serial: true });
         return this;
+    }
+
+    public async find(callback: AAFindCallback<T>): Promise<T | undefined> {
+        const value = await this.value();
+        const results = await Promise.all(
+            value.map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
+        );
+        return value[results.indexOf(true)];
+    }
+
+    public async findIndex(callback: AAFindCallback<T>): Promise<number> {
+        return (await Promise.all(
+            (await this.value()).map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
+        )).indexOf(true);
+    }
+
+    public async findIndexSerial(callback: AAFindCallback<T>): Promise<number> {
+        const value = await this.value();
+        for (let i = 0; i < value.length; ++i) {
+            const result = await callback(value[i], i, value);
+            if (result) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public async findSerial(callback: AAFindCallback<T>): Promise<T | undefined> {
+        const value = await this.value();
+        for (let i = 0; i < value.length; ++i) {
+            const result = await callback(value[i], i, value);
+            if (result) {
+                return result;
+            }
+        }
+    }
+
+    public async includes(valueToFind: T, fromIndex = 0): Promise<boolean> {
+        return (await this.value()).includes(valueToFind, fromIndex);
+    }
+
+    public async indexOf(searchElement: T, fromIndex = 0): Promise<number> {
+        return (await this.value()).indexOf(searchElement, fromIndex);
+    }
+
+    public async join(separator?: string): Promise<string> {
+        return (await this.value()).join(separator);
+    }
+
+    public async lastIndexOf(searchElement: T, fromIndex = 0): Promise<number> {
+        return (await this.value()).lastIndexOf(searchElement, fromIndex);
+    }
+
+    public map<U>(callback: AAMapCallback<T, U>): AAArray<U> {
+        this.queue.push({ action: AAAction.MAP, callback, serial: false });
+        return (this as unknown) as AAArray<U>;
+    }
+
+    public mapSerial<U>(callback: AAMapCallback<T, U>): AAArray<U> {
+        this.queue.push({ action: AAAction.MAP, callback, serial: true });
+        return (this as unknown) as AAArray<U>;
     }
 
     public slice(begin?: number, end?: number): AAArray<T> {
-        this.queue.push({ action: AAAction.SLICE, callback: (arr: any[]) => arr.slice(begin, end), ordered: true });
+        this.queue.push({ action: AAAction.SLICE, callback: (arr: any[]) => arr.slice(begin, end) });
         return this;
     }
 
-    // TODO: find, findOrdered, slice, splice, join, reduce, reduceOrdered, reduceRightOrdered, concat, includes,
-    // indexOf, lastIndexOf, findIndex, fill, flat, some, flatMap, pop, reverse, sort, unshift, forEach, push,
-    // shift, every
+    public async some(callback: AASomeCallback<T>): Promise<boolean> {
+        return (await Promise.all((await this.value()).map((v, i, a) => callback(v, i, a)))).some(v => Boolean(v));
+    }
+
+    public async someSerial(callback: AASomeCallback<T>): Promise<boolean> {
+        const value = await this.value();
+        for (let i = 0; i < value.length; ++i) {
+            if (await callback(value[i], i, value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // TODO: splice?, reduce, reduceSerial, reduceRightSerial
+    // fill, flat, flatMap, pop?, reverse, sort, unshift?, forEach, push?,
+    // shift?
 
     public async value(): Promise<T[]> {
         let arr = this.array;
@@ -85,10 +180,11 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     private async run(arr: any[], action: AAActionDelegate): Promise<any[]> {
         switch (action.action) {
-            case AAAction.MAP:
-                return this.runMap(arr, action as AAActionDelegate<AAMapCallback<T, any>>);
             case AAAction.FILTER:
                 return this.runFilter(arr, action as AAActionDelegate<AAFilterCallback<T>>);
+            case AAAction.MAP:
+                return this.runMap(arr, action as AAActionDelegate<AAMapCallback<T, any>>);
+            case AAAction.CONCAT:
             case AAAction.SLICE:
                 return this.runTransform(arr, action);
             default:
@@ -97,7 +193,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     private async runMap(arr: any[], action: AAActionDelegate<AAMapCallback<T, any>>): Promise<any[]> {
-        if (action.ordered) {
+        if (action.serial) {
             for (let i = 0; i < arr.length; ++i) {
                 arr[i] = await action.callback(arr[i], i, arr);
             }
@@ -109,7 +205,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     private async runFilter(arr: any[], action: AAActionDelegate<AAFilterCallback<T>>): Promise<any[]> {
         let result = new Array(arr.length);
-        if (action.ordered) {
+        if (action.serial) {
             for (let i = 0; i < arr.length; ++i) {
                 result[i] = await action.callback(arr[i], i, arr);
             }

@@ -1,19 +1,19 @@
-export type AAMapCallback<T, U> = (value?: T, index?: number, arr?: T[]) => U | Promise<U>;
+export type AAMapCallback<T, U> = (value: T, index: number, arr: T[]) => U | Promise<U>;
 
 // TODO: These are all just... super the same, could easily be a single type
-export type AAFilterCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
+export type AAFilterCallback<T> = (value: T, index: number, arr: T[]) => any;
 
-export type AAFindCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
+export type AAFindCallback<T> = (value: T, index: number, arr: T[]) => any;
 
-export type AASomeCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
+export type AASomeCallback<T> = (value: T, index: number, arr: T[]) => any;
 
-export type AAEveryCallback<T> = (value?: T, index?: number, arr?: T[]) => any;
+export type AAEveryCallback<T> = (value: T, index: number, arr: T[]) => any;
 
-export type AATransform = (arr: any[]) => any[];
+export type AATransform<T> = (arr: T[]) => T[];
 
 // TODO: Investigate if we can actually see the full type of the callback as this might be handy in autocomp
 // down the line - right now it only shows AAMapCallback for example instead of all the params actually needed.
-type AACallback<T, U> = AAMapCallback<T, U> | AAFilterCallback<T> | AATransform;
+type AACallback<T, U> = AAMapCallback<T, U> | AAFilterCallback<T> | AATransform<T>;
 
 enum AAAction {
     CONCAT,
@@ -186,7 +186,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
                 return this.runMap(arr, action as AAActionDelegate<AAMapCallback<T, any>>);
             case AAAction.CONCAT:
             case AAAction.SLICE:
-                return this.runTransform(arr, action);
+                return this.runTransform(arr, action as AAActionDelegate<AATransform<T>>);
             default:
                 return arr;
         }
@@ -215,7 +215,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return result.reduceRight((prev, cur, i) => (cur ? prev : [...prev.slice(0, i), ...prev.slice(i + 1)]), arr);
     }
 
-    private async runTransform(arr: any[], action: AAActionDelegate<AATransform>): Promise<any[]> {
+    private async runTransform(arr: any[], action: AAActionDelegate<AATransform<T>>): Promise<any[]> {
         return action.callback(arr);
     }
 }

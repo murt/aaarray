@@ -285,7 +285,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         await this.value();
     }
 
-    private async run(arr: any[], action: AAActionDelegate): Promise<any[]> {
+    protected async run(arr: any[], action: AAActionDelegate): Promise<any[]> {
         switch (action.action) {
             case AAAction.EACH:
                 return this.runEach(arr, action as AAActionDelegate<AAIterCallback<T>>);
@@ -302,7 +302,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    private async runEach(arr: T[], action: AAActionDelegate<AAIterCallback<T>>): Promise<T[]> {
+    protected async runEach(arr: T[], action: AAActionDelegate<AAIterCallback<T>>): Promise<T[]> {
         if (action.serial) {
             for (let i = 0; i < arr.length; ++i) {
                 await action.callback(arr[i], i, arr);
@@ -314,7 +314,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return arr;
     }
 
-    private async runFilter(arr: T[], action: AAActionDelegate<AAIterCallback<T>>): Promise<any[]> {
+    protected async runFilter(arr: T[], action: AAActionDelegate<AAIterCallback<T>>): Promise<any[]> {
         let result = new Array(arr.length);
         if (action.serial) {
             for (let i = 0; i < arr.length; ++i) {
@@ -326,7 +326,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return result.reduceRight((prev, cur, i) => (cur ? prev : [...prev.slice(0, i), ...prev.slice(i + 1)]), arr);
     }
 
-    private async runMap(arr: T[], action: AAActionDelegate<AAMapCallback<T, any>>): Promise<any[]> {
+    protected async runMap(arr: T[], action: AAActionDelegate<AAMapCallback<T, any>>): Promise<any[]> {
         if (action.serial) {
             for (let i = 0; i < arr.length; ++i) {
                 arr[i] = await action.callback(arr[i], i, arr);
@@ -337,11 +337,11 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    private async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[]> {
+    protected async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[]> {
         return action.callback(arr);
     }
 
-    private async runSort(arr: T[], action: AAActionDelegate<AASortCallback<T>>): Promise<T[]> {
+    protected async runSort(arr: T[], action: AAActionDelegate<AASortCallback<T>>): Promise<T[]> {
         let swapped;
         do {
             swapped = false;

@@ -21,4 +21,9 @@ describe("aaarray#filter", () => {
         const results = await AA([false, null, false]).filter(x => x === false);
         expect(results).toEqual([false, false]);
     });
+
+    it("should support using a bound function (Boolean)", async () => {
+        const results = await AA([1, 0, true, false]).filter(Boolean);
+        expect(results).toEqual([1, true]);
+    });
 });

@@ -38,6 +38,9 @@ enum AAAction {
 
 type AAActionDelegate<C = AACallback<any, any>> = { action: AAAction; callback: C; serial?: boolean };
 
+/**
+ * Asynchronous array type with chainable methods.
+ */
 export class AAArray<T> implements PromiseLike<T[]> {
     protected readonly array: T[];
 
@@ -48,15 +51,32 @@ export class AAArray<T> implements PromiseLike<T[]> {
         this.queue = [];
     }
 
+    /**
+     * Concatenates values to the end of the array.
+     * 
+     * @param values Additional values to add to the array.
+     */
     public concat<U>(...values: (T | U | ConcatArray<T | U>)[]): AAArray<T | U> {
         return this.mutate(arr => (arr as (T | U)[]).concat(...values)) as AAArray<T | U>;
     }
 
+    /**
+     * Calls the provided callback on each item in the array in parallel. Most importantly this returns the original
+     * AAArray reference as opposed to voiding out after iteration like *forEach* does.
+     * 
+     * @param callback Function to call on each item, in parallel, of the array.
+     */
     public each(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.EACH, callback, serial: false });
         return this;
     }
 
+    /**
+     * Calls the provided callback on each item in the array in serial. Most important this returns the original
+     * AAArray reference as opposed to voiding out after iteration like *forEach* does.
+     * 
+     * @param callback Function to on each item, in serial, of the array.
+     */
     public eachSerial(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.EACH, callback, serial: true });
         return this;

@@ -7,17 +7,19 @@ export type AAMapCallback<T, U> = (value: T, index: number, arr: T[]) => U | Pro
  */
 export type AAIterCallback<T> = (value: T, index: number, arr: T[]) => any;
 
+/**
+ * This is a callback type that describes a sorting comparison function.
+ */
 export type AASortCallback<T> = (a: T, b: T) => number;
 
 /**
- * This is a callback type that describes a function that directly transforms the provided array and does so without altering
- * the type of the array directly - transforms can alter the type of the array indirectly though (eg. concat)
+ * This is a callback that describes a direct mutation of the array with corresponding type updates.
  */
-export type AATransform<T, U = T> = (arr: T[]) => U[];
+export type AAMutateCallback<T, U = T> = (arr: T[]) => U[];
 
 // TODO: Investigate if we can actually see the full type of the callback as this might be handy in autocomp
 // down the line - right now it only shows AAMapCallback for example instead of all the params actually needed.
-type AACallback<T, U> = AAMapCallback<T, U> | AAIterCallback<T> | AASortCallback<T> | AATransform<T, U>;
+type AACallback<T, U> = AAMapCallback<T, U> | AAIterCallback<T> | AASortCallback<T> | AAMutateCallback<T, U>;
 
 /**
  * This is a callback exclusively for reduce functionality.
@@ -27,15 +29,10 @@ type AACallback<T, U> = AAMapCallback<T, U> | AAIterCallback<T> | AASortCallback
 export type AAReduceCallback<T, U> = (accumulator: T, currentValue: T, index: number, arr: T[]) => U | Promise<U>;
 
 enum AAAction {
-    CONCAT,
     EACH,
-    FILL,
     FILTER,
-    FLAT,
     MAP,
     MUTATE,
-    REVERSE,
-    SLICE,
     SORT,
 }
 
@@ -51,13 +48,8 @@ export class AAArray<T> implements PromiseLike<T[]> {
         this.queue = [];
     }
 
-    // TODO: Can this just be a call to mutate?
     public concat<U>(...values: (T | U | ConcatArray<T | U>)[]): AAArray<T | U> {
-        this.queue.push({
-            action: AAAction.CONCAT,
-            callback: (arr: T[]) => (arr as (T | U)[]).concat(...values),
-        });
-        return (this as unknown) as AAArray<T | U>;
+        return this.mutate(arr => (arr as (T | U)[]).concat(...values)) as AAArray<T | U>;
     }
 
     public each(callback: AAIterCallback<T>): AAArray<T> {
@@ -71,7 +63,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public async every(callback: AAIterCallback<T>): Promise<boolean> {
-        return (await Promise.all((await this.value()).map((v, i, a) => callback(v, i, a)))).every(v => Boolean(v));
+        return (await Promise.all((await this.value()).map((v, i, a) => callback(v, i, a)))).every(Boolean);
     }
 
     public async everySerial(callback: AAIterCallback<T>): Promise<boolean> {
@@ -85,11 +77,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public fill<U>(value: U, start = 0, end?: number): AAArray<T | U> {
-        this.queue.push({
-            action: AAAction.FILL,
-            callback: (arr: T[]) => (arr as (T | U)[]).fill(value, start, end),
-        });
-        return this as AAArray<T | U>;
+        return this.mutate(arr => (arr as (T | U)[]).fill(value, start, end)) as AAArray<T | U>;
     }
 
     public filter(callback: AAIterCallback<T>): AAArray<T> {
@@ -137,10 +125,8 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    // TODO: Can this just be a call to mutate?
     public flat(depth = 1): AAArray<T> {
-        this.queue.push({ action: AAAction.FLAT, callback: (arr: T[]) => arr.flat(depth) });
-        return this;
+        return this.mutate(arr => arr.flat(depth));
     }
 
     public flatMap<U>(callback: AAMapCallback<T, U>): AAArray<U> {
@@ -195,7 +181,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      *
      * @param callback Function that returns the new and/or transformed array.
      */
-    public mutate<U>(callback: AATransform<T, U>): AAArray<U> {
+    public mutate<U>(callback: AAMutateCallback<T, U>): AAArray<U> {
         this.queue.push({ action: AAAction.MUTATE, callback });
         return (this as unknown) as AAArray<U>;
     }
@@ -228,16 +214,12 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    // TODO: Can this just be a call to mutate?
     public reverse(): AAArray<T> {
-        this.queue.push({ action: AAAction.REVERSE, callback: (arr: T[]) => arr.reverse() });
-        return this;
+        return this.mutate(arr => arr.reverse());
     }
 
-    // TODO: Can this just be a call to mutate?
     public slice(begin?: number, end?: number): AAArray<T> {
-        this.queue.push({ action: AAAction.SLICE, callback: (arr: any[]) => arr.slice(begin, end) });
-        return this;
+        return this.mutate(arr => arr.slice(begin, end));
     }
 
     public async some(callback: AAIterCallback<T>): Promise<boolean> {
@@ -311,15 +293,10 @@ export class AAArray<T> implements PromiseLike<T[]> {
                 return this.runFilter(arr, action as AAActionDelegate<AAIterCallback<T>>);
             case AAAction.MAP:
                 return this.runMap(arr, action as AAActionDelegate<AAMapCallback<T, any>>);
+            case AAAction.MUTATE:
+                return this.runMutate(arr, action as AAActionDelegate<AAMutateCallback<T>>);
             case AAAction.SORT:
                 return this.runSort(arr, action as AAActionDelegate<AASortCallback<T>>);
-            case AAAction.CONCAT:
-            case AAAction.FILL:
-            case AAAction.FLAT:
-            case AAAction.MUTATE:
-            case AAAction.REVERSE:
-            case AAAction.SLICE:
-                return this.runTransform(arr, action as AAActionDelegate<AATransform<T>>);
             default:
                 return arr;
         }
@@ -360,6 +337,10 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
+    private async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[]> {
+        return action.callback(arr);
+    }
+
     private async runSort(arr: T[], action: AAActionDelegate<AASortCallback<T>>): Promise<T[]> {
         let swapped;
         do {
@@ -374,10 +355,6 @@ export class AAArray<T> implements PromiseLike<T[]> {
             }
         } while (swapped);
         return arr;
-    }
-
-    private async runTransform<U>(arr: T[], action: AAActionDelegate<AATransform<T, U>>): Promise<U[]> {
-        return action.callback(arr);
     }
 }
 

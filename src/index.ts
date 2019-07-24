@@ -53,7 +53,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     /**
      * Concatenates values to the end of the array.
-     * 
+     *
      * @param values Additional values to add to the array.
      */
     public concat<U>(...values: (T | U | ConcatArray<T | U>)[]): AAArray<T | U> {
@@ -63,7 +63,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     /**
      * Calls the provided callback on each item in the array in parallel. Most importantly this returns the original
      * AAArray reference as opposed to voiding out after iteration like *forEach* does.
-     * 
+     *
      * @param callback Function to call on each item, in parallel, of the array.
      */
     public each(callback: AAIterCallback<T>): AAArray<T> {
@@ -72,9 +72,9 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     /**
-     * Calls the provided callback on each item in the array in serial. Most important this returns the original
+     * Calls the provided callback on each item in the array in serial. Most importantly this returns the original
      * AAArray reference as opposed to voiding out after iteration like *forEach* does.
-     * 
+     *
      * @param callback Function to on each item, in serial, of the array.
      */
     public eachSerial(callback: AAIterCallback<T>): AAArray<T> {
@@ -82,10 +82,22 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return this;
     }
 
+    /**
+     * Determines whether or not all items in the array satisfy the provided callback. Items are tested
+     * in parallel.
+     *
+     * @param callback Callback to determine either a truthy or falsy value for each item in the array.
+     */
     public async every(callback: AAIterCallback<T>): Promise<boolean> {
         return (await Promise.all((await this.value()).map((v, i, a) => callback(v, i, a)))).every(Boolean);
     }
 
+    /**
+     * Determines whether or not all items in the array satisfy the provided callback. Items are tested
+     * in serial.
+     *
+     * @param callback Callback to determine either a truthy or falsy value for each item in the array.
+     */
     public async everySerial(callback: AAIterCallback<T>): Promise<boolean> {
         const value = await this.value();
         for (let i = 0; i < value.length; ++i) {
@@ -96,6 +108,15 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return true;
     }
 
+    /**
+     * Returns the the array after filling the section identified by start and end with value
+     *
+     * @param value value to fill array section with
+     * @param start index to start filling the array at. If start is negative, it is treated as
+     * length+start where length is the length of the array.
+     * @param end index to stop filling the array at. If end is negative, it is treated as
+     * length+end.
+     */
     public fill<U>(value: U, start = 0, end?: number): AAArray<T | U> {
         return this.mutate(arr => (arr as (T | U)[]).fill(value, start, end)) as AAArray<T | U>;
     }
@@ -198,6 +219,8 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * Arbitrarily mutate the array and return back to AAArray. This allows for any type of transformation to take
      * place (including those that require async functionality). The provided array is a copy of the current value
      * in the AAArray, it can be mutated as needed and then returned or an entirely new array can also be provided.
+     * Direct mutations, such as setting a value at an index, do not affect the original array unless the modified
+     * array is returned.
      *
      * @param callback Function that returns the new and/or transformed array.
      */
@@ -358,7 +381,8 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     protected async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[]> {
-        return action.callback(arr);
+        const result = await action.callback(arr);
+        return result || arr;
     }
 
     protected async runSort(arr: T[], action: AAActionDelegate<AASortCallback<T>>): Promise<T[]> {

@@ -133,6 +133,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     public async find(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.value();
+        // TODO: Would this be better as Promise.race?
         const results = await Promise.all(
             value.map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
         );

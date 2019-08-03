@@ -6,8 +6,12 @@
     "testPathIgnorePatterns": ["/node_modules/"],
     "moduleFileExtensions": ["ts", "js"],
     "collectCoverage": true,
-    "coverageDirectory": "coverage",
+    "coverageDirectory": "reports/lcov",
     "collectCoverageFrom": ["<rootDir>/src/**/*.ts"],
-    "coverageReporters": ["text"],
+    "coverageReporters": ["text", "lcovonly"],
+    "reporters": [
+        "default",
+        ["jest-junit", { "outputDirectory": "reports/junit" }]
+    ],
     "verbose": true
 }

@@ -89,7 +89,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * @param callback Callback to determine either a truthy or falsy value for each item in the array.
      */
     public async every(callback: AAIterCallback<T>): Promise<boolean> {
-        return (await Promise.all((await this.value()).map((v, i, a) => callback(v, i, a)))).every(Boolean);
+        return (await Promise.all((await this.resolve()).map((v, i, a) => callback(v, i, a)))).every(Boolean);
     }
 
     /**
@@ -99,7 +99,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * @param callback Callback to determine either a truthy or falsy value for each item in the array.
      */
     public async everySerial(callback: AAIterCallback<T>): Promise<boolean> {
-        const value = await this.value();
+        const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
             if (!(await callback(value[i], i, value))) {
                 return false;
@@ -132,7 +132,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public async find(callback: AAIterCallback<T>): Promise<T | undefined> {
-        const value = await this.value();
+        const value = await this.resolve();
         // TODO: Would this be better as Promise.race?
         const results = await Promise.all(
             value.map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
@@ -142,12 +142,12 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     public async findIndex(callback: AAIterCallback<T>): Promise<number> {
         return (await Promise.all(
-            (await this.value()).map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
+            (await this.resolve()).map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
         )).indexOf(true);
     }
 
     public async findIndexSerial(callback: AAIterCallback<T>): Promise<number> {
-        const value = await this.value();
+        const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
             const result = await callback(value[i], i, value);
             if (result) {
@@ -158,7 +158,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public async findSerial(callback: AAIterCallback<T>): Promise<T | undefined> {
-        const value = await this.value();
+        const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
             const result = await callback(value[i], i, value);
             if (result) {
@@ -176,34 +176,34 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public async forEach(callback: AAIterCallback<T>): Promise<void> {
-        await Promise.all((await this.value()).map(callback));
+        await Promise.all((await this.resolve()).map(callback));
     }
 
     public async forEachSerial(callback: AAIterCallback<T>): Promise<void> {
-        const value = await this.value();
+        const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
             await callback(value[i], i, value);
         }
     }
 
     public async get(index: number): Promise<T> {
-        return (await this.value())[index];
+        return (await this.resolve())[index];
     }
 
     public async includes(valueToFind: T, fromIndex = 0): Promise<boolean> {
-        return (await this.value()).includes(valueToFind, fromIndex);
+        return (await this.resolve()).includes(valueToFind, fromIndex);
     }
 
     public async indexOf(searchElement: T, fromIndex = 0): Promise<number> {
-        return (await this.value()).indexOf(searchElement, fromIndex);
+        return (await this.resolve()).indexOf(searchElement, fromIndex);
     }
 
     public async join(separator?: string): Promise<string> {
-        return (await this.value()).join(separator);
+        return (await this.resolve()).join(separator);
     }
 
     public async lastIndexOf(searchElement: T, fromIndex = 0): Promise<number> {
-        return (await this.value()).lastIndexOf(searchElement, fromIndex);
+        return (await this.resolve()).lastIndexOf(searchElement, fromIndex);
     }
 
     public map<U>(callback: AAMapCallback<T, U>): AAArray<U> {
@@ -232,7 +232,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     public async reduce<U>(callback: AAReduceCallback<T, U>, initialValue?: any): Promise<U> {
         const iv = typeof initialValue !== "undefined";
-        const value = await this.value();
+        const value = await this.resolve();
         if (!iv && !value.length) {
             throw new TypeError();
         } else {
@@ -246,7 +246,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     public async reduceRight<U>(callback: AAReduceCallback<T, U>, initialValue?: any): Promise<U> {
         const iv = typeof initialValue !== "undefined";
-        const value = await this.value();
+        const value = await this.resolve();
         if (!iv && !value.length) {
             throw new TypeError();
         } else {
@@ -267,11 +267,11 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public async some(callback: AAIterCallback<T>): Promise<boolean> {
-        return (await Promise.all((await this.value()).map((v, i, a) => callback(v, i, a)))).some(v => Boolean(v));
+        return (await Promise.all((await this.resolve()).map((v, i, a) => callback(v, i, a)))).some(v => Boolean(v));
     }
 
     public async someSerial(callback: AAIterCallback<T>): Promise<boolean> {
-        const value = await this.value();
+        const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
             if (await callback(value[i], i, value)) {
                 return true;
@@ -301,7 +301,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     // TODO: pop?, push?, shift?, splice?, unshift?
     // These could be done with a final optional callback to handle the extra value while modifying the array as needed?
 
-    public async value(): Promise<T[]> {
+    public async resolve(): Promise<T[]> {
         let arr = this.array;
         while (this.queue.length) {
             arr = await this.run(arr, this.queue.shift() as AAActionDelegate);
@@ -314,7 +314,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         onrejected?: (reason: any) => TResult2 | Promise<TResult2>
     ): Promise<TResult1 | TResult2> {
         try {
-            const value = await this.value();
+            const value = await this.resolve();
             return onfulfilled ? onfulfilled(value) : (value as any);
         } catch (err) {
             if (onrejected) {
@@ -326,7 +326,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public async void(): Promise<void> {
-        await this.value();
+        await this.resolve();
     }
 
     protected async run(arr: any[], action: AAActionDelegate): Promise<any[]> {

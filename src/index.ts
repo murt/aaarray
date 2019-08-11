@@ -381,9 +381,11 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    protected async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[]> {
-        const result = await action.callback(arr);
-        return result || arr;
+    protected async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[]|T[]> {
+        const result = await action.callback([...arr]);
+        // TODO: Should an error be thrown instead if an array isn't returned?
+        // TODO: Should a... void return be allowed for the sake of acknowledging that a mutate could skip mutating?
+        return result instanceof Array ? result : arr;
     }
 
     protected async runSort(arr: T[], action: AAActionDelegate<AASortCallback<T>>): Promise<T[]> {

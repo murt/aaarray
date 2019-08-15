@@ -7,6 +7,8 @@ describe("aaarray#mutate", () => {
     // If nothing is returned then theoretically the original array should be returned.
     it("should not alter the original array", async () => {
         const results = await AA([1, 2, 3]).mutate((arr): any => {
+            // Set the value at an index of the provided array but don't *actually* return anything. This should
+            // not actually change anything as nothing is returned.
             arr[0] = 4;
         });
 

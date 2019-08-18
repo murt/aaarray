@@ -22,6 +22,14 @@ export type AAMutateCallback<T, U = T> = (arr: T[]) => U[];
 type AACallback<T, U> = AAMapCallback<T, U> | AAIterCallback<T> | AASortCallback<T> | AAMutateCallback<T, U>;
 
 /**
+ * This is an optional inline callback that, when supplied, will receive portions of the array that mutational methods
+ * provide - for example pop or shift will provide the value they remove from the original array to this function. No
+ * value needs to be returned as it is not used. If the callback is async AAArray will wait before it finishes to
+ * proceed onto any other steps in the chain.
+ */
+export type AAInlineCallback<T, U = T> = (arr: T | T[]) => Promise<void>;
+
+/**
  * This is a callback exclusively for reduce functionality.
  *
  * TODO: Get the types right so that the callbacks return type is properly passed to prev/accumulator
@@ -121,11 +129,25 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return this.mutate(arr => (arr as (T | U)[]).fill(value, start, end)) as AAArray<T | U>;
     }
 
+    /**
+     * Returns the elements of an array that meet the condition specified in a callback function that is applied
+     * to each item of the array in parallel.
+     *
+     * @param callbackfn A function that accepts up to three arguments. The filter method calls the callbackfn function
+     * one time for each element in the array in parallel.
+     */
     public filter(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.FILTER, callback, serial: false });
         return this;
     }
 
+    /**
+     * Returns the elements of an array that meet the condition specified in a callback function that is applied
+     * to each item of the array in serial.
+     *
+     * @param callbackfn A function that accepts up to three arguments. The filter method calls the callbackfn function
+     * one time for each element in the array in serial.
+     */
     public filterSerial(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.FILTER, callback, serial: true });
         return this;
@@ -133,7 +155,6 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     public async find(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.resolve();
-        // TODO: Would this be better as Promise.race?
         const results = await Promise.all(
             value.map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
         );
@@ -202,6 +223,10 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return (await this.resolve()).join(separator);
     }
 
+    public async length(): Promise<number> {
+        return (await this.resolve()).length;
+    }
+
     public async lastIndexOf(searchElement: T, fromIndex = 0): Promise<number> {
         return (await this.resolve()).lastIndexOf(searchElement, fromIndex);
     }
@@ -228,6 +253,22 @@ export class AAArray<T> implements PromiseLike<T[]> {
     public mutate<U>(callback: AAMutateCallback<T, U>): AAArray<U> {
         this.queue.push({ action: AAAction.MUTATE, callback });
         return (this as unknown) as AAArray<U>;
+    }
+
+    public pop(handler?: AAInlineCallback<T>): AAArray<T> {
+        return this.mutate(arr => {
+            const value = arr.pop();
+            // TODO: This should be fixed via a length check as "undefined" as an item is a valid value
+            handler && typeof value !== "undefined" && handler(value);
+            return arr;
+        });
+    }
+
+    public push<U>(value: U): AAArray<T|U> {
+        return this.mutate(arr => {
+            (arr as (T|U)[]).push(value);
+            return arr;
+        });
     }
 
     public async reduce<U>(callback: AAReduceCallback<T, U>, initialValue?: any): Promise<U> {
@@ -258,10 +299,28 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
+    /**
+     * Reverses the elements in the array.
+     */
     public reverse(): AAArray<T> {
         return this.mutate(arr => arr.reverse());
     }
 
+    public shift(handler?: AAInlineCallback<T>): AAArray<T> {
+        return this.mutate(arr => {
+            const value = arr.shift();
+            // TODO: This should be fixed via a length check as "undefined" as an item is a valid value
+            handler && typeof value !== "undefined" && handler(value);
+            return arr;
+        });
+    }
+
+    /**
+     * Returns a section of the array as the new array value.
+     * 
+     * @param start The beginning of the specified portion of the array.
+     * @param end The end of the specified portion of the array.
+     */
     public slice(begin?: number, end?: number): AAArray<T> {
         return this.mutate(arr => arr.slice(begin, end));
     }
@@ -325,6 +384,13 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
+    public unshift<U>(value: U): AAArray<U|T> {
+        return this.mutate(arr => {
+            (arr as (T|U)[]).unshift(value);
+            return arr;
+        });
+    }
+
     public async void(): Promise<void> {
         await this.resolve();
     }
@@ -381,11 +447,15 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    protected async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[]|T[]> {
+    protected async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[] | T[]> {
         const result = await action.callback([...arr]);
-        // TODO: Should an error be thrown instead if an array isn't returned?
-        // TODO: Should a... void return be allowed for the sake of acknowledging that a mutate could skip mutating?
-        return result instanceof Array ? result : arr;
+        if (result instanceof Array) {
+            return result;
+        } else if (typeof result === "undefined") {
+            return arr;
+        } else {
+            throw new TypeError("Invalid AAArray mutation return value, only arrays and undefined may be returned");
+        }
     }
 
     protected async runSort(arr: T[], action: AAActionDelegate<AASortCallback<T>>): Promise<T[]> {

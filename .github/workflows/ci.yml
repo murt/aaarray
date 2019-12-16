@@ -1,0 +1,31 @@
+name: CI
+on: [push]
+jobs:
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_versions: [10, 11, 12, 13]
+      fail-fast: true
+    
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Use node ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          version: ${{ matrix.node_version }}
+      
+      - name: Install
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Test
+        run: yarn test
+   
+
+

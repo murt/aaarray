@@ -29,7 +29,7 @@
         "@types/node": "12.12.17",
         "coveralls": "3.0.9",
         "del-cli": "3.0.0",
-        "jest": "24.8.0",
+        "jest": "24.9.0",
         "jest-junit": "7.0.0",
         "ts-jest": "24.2.0",
         "typescript": "3.7.3"

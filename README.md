@@ -1,21 +1,22 @@
 # aaarray
 ### Typed Async / Await Arrays
 
-[![CircleCI](https://circleci.com/gh/murt/aaarray.svg?style=svg)](https://circleci.com/gh/murt/aaarray) [![Coverage Status](https://coveralls.io/repos/github/murt/aaarray/badge.svg)](https://coveralls.io/github/murt/aaarray)
+[![Github Actions](https://github.com/murt/aaarray/workflows/CI/badge.svg)](https://github.com/murt/aaarray/actions?query=workflow%3ACI)[![Coverage Status](https://coveralls.io/repos/github/murt/aaarray/badge.svg)](https://coveralls.io/github/murt/aaarray)
 
 Have you ever wanted to write something like this?
 
 ```javascript
 await [1, 2, 3]
-.map(n => fetch(`https://example.com/${n}`))
+.map(n => (await fetch(`https://example.com/${n}`)).json())
 .filter(r => checkAsync(r));
 ```
 
 Well you still kind of can but it's not... pretty.
 
 ```javascript
-await Promise.all([1, 2, 3]
+Promise.all([1, 2, 3]
 .map(n => fetch(`https://example.com/${n}`)))
+.then(results => Promise.all(results.map(res => res.json())))
 .then(results => Promise.all(results.map(r => checkAsync(r))))
 .then(results => results.filter(Boolean));
 ```
@@ -28,7 +29,7 @@ This is where **AAArray** comes in - with a single wrapper function you can crea
 import AA from "aaarray";
 
 await AA([1, 2, 3])
-.map(n => fetch(`https://example.com/${n}`))
+.map(n => (await fetch(`https://example.com/${n}`).json()))
 .filter(r => checkAsync(r));
 ```
 

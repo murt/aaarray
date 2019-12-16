@@ -1,4 +1,4 @@
-import AA from "../src";
+import AA from "../src/aaarray";
 
 describe("aaarray#sort", () => {
     it("should sort basic numbers without a compare function", async () => {

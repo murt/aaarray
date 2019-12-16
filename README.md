@@ -2,6 +2,7 @@
 ### Typed Async / Await Arrays
 
 [![Github Actions](https://github.com/murt/aaarray/workflows/CI/badge.svg)](https://github.com/murt/aaarray/actions?query=workflow%3ACI)[![Coverage Status](https://coveralls.io/repos/github/murt/aaarray/badge.svg)](https://coveralls.io/github/murt/aaarray)
+[![Maintainability](https://api.codeclimate.com/v1/badges/9123014af637a087c8f4/maintainability)](https://codeclimate.com/github/murt/aaarray/maintainability)
 
 Have you ever wanted to write something like this?
 

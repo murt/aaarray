@@ -1,4 +1,4 @@
-import AA from "../src";
+import AA from "../src/aaarray";
 
 describe("aaarray#filter", () => {
     it("should support async functions", async () => {

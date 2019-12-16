@@ -1,4 +1,4 @@
-import AA from "../src";
+import AA from "../src/aaarray";
 
 describe("aaarray#concat", () => {
     it("should concat spread args", async () => {

@@ -31,7 +31,14 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
           path-to-lcov: reports/lcov/lcov.info
-   
+      
+      - name: Coveralls Complete
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
+          path-to-lcov: reports/lcov/lcov.info
 
 

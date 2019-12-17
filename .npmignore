@@ -1,4 +1,11 @@
 test
-.circleci
+
+reports
+.dependabot
+.github
+
 jest.json
 yarn.lock
+tsconfig.json
+.codeclimate.yml
+.prettierrc

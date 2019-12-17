@@ -1,6 +1,6 @@
 {
     "name": "aaarray",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "contributors": [
         "murt <murt@unpossible.io>"
     ],
@@ -20,9 +20,9 @@
     "scripts": {
         "clean": "del-cli dist reports",
         "build": "tsc",
+        "minify": "uglifyjs --compress --output dist/aaarray.min.js --source-map \"content=dist/aaarray.js.map,includeSources\" dist/aaarray.js",
         "test": "jest --config jest.json",
-        "test-ci": "jest --config jest.json --ci --runInBand",
-        "coveralls": "cat reports/lcov/lcov.info | coveralls"
+        "test-ci": "jest --config jest.json --ci --runInBand"
     },
     "devDependencies": {
         "@types/jest": "24.0.23",
@@ -32,6 +32,7 @@
         "jest": "24.9.0",
         "jest-junit": "10.0.0",
         "ts-jest": "24.2.0",
-        "typescript": "3.7.3"
+        "typescript": "3.7.3",
+        "uglify-js": "3.7.2"
     }
 }

@@ -475,6 +475,9 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 }
 
-export default function AA<U>(array: U[]): AAArray<U> {
+export function AA<U>(array: U[]): AAArray<U> {
     return new AAArray<U>(array);
 }
+
+// Default export is the AA function
+export default AA;

@@ -1,8 +1,9 @@
 # aaarray
 ### Typed Async / Await Arrays
 
-[![Github Actions](https://github.com/murt/aaarray/workflows/CI/badge.svg)](https://github.com/murt/aaarray/actions?query=workflow%3ACI)[![Coverage Status](https://coveralls.io/repos/github/murt/aaarray/badge.svg)](https://coveralls.io/github/murt/aaarray)
-[![Maintainability](https://api.codeclimate.com/v1/badges/9123014af637a087c8f4/maintainability)](https://codeclimate.com/github/murt/aaarray/maintainability)
+[![Status](https://img.shields.io/github/workflow/status/murt/aaarray/CI?style=for-the-badge)](https://github.com/murt/aaarray/actions?query=workflow%3ACI)
+[![Coverage](https://img.shields.io/coveralls/github/murt/aaarray?style=for-the-badge)](https://coveralls.io/github/murt/aaarray)
+[![Maintainability](https://img.shields.io/codeclimate/maintainability/murt/aaarray?style=for-the-badge)](https://codeclimate.com/github/murt/aaarray)
 
 Have you ever wanted to write something like this?
 
@@ -24,7 +25,7 @@ Promise.all([1, 2, 3]
 
 What if you also wanted to reduce, or forEach, or flat, or any other array method? It can get pretty complicated with a lot of boiler plate to make sure that your async array operations run how you expect.
 
-This is where **AAArray** comes in - with a single wrapper function you can create an array that handles both async and sync callbacks in the exact same manner as normal arrays, completely chainable too!
+This is where **AAArray** (pronounced *eh-eh-array*) comes in - with a single wrapper function you can create an array that handles both async and sync callbacks in the exact same manner as normal arrays, completely chainable too!
 
 ```javascript
 import AA from "aaarray";
@@ -56,18 +57,42 @@ Introducing async support to some array methods meant that the iterator could be
 
 While the full `Array` API is present I have also added some additional methods that helped fill the gap between the synchronous API and the chainable async nature of `AAArray`.
 
-- `get`
-- `each`
-- `eachSerial`
+### `get`
+
+Gets the value at a given index.
+
+```javascript
+await AA([1,2,3]).get(0)
+```
+
+Functionally identical to the following:
+
+```javascript
+(await AA([1,2,3]))[0]
+```
+
+### `each` / `eachSerial`
+
+Iterates over the values in array without mutating them, returns the AAArray as opposed to `forEach` which resolves with `void`.
+
+```javascript
+await AA([1,2,3]).each(n => console.log(n))
+```
 
 ## Typescript
 
 This project is written in Typescript and will correctly type each stage in a chain. For example if you run a map that changes the type this will be reflected immediately in the next callback you use in the chain.
 
 ```typescript
+// Simple type change
 await AA([1, 2, 3])
 .map((n: number) => n.toString())
 .forEach((s: string) => console.log(s));
+
+// Automatically understands union types as well
+await AA([1,2,3])
+.map(n: number) => n % 2 ? n.toString() : n)
+.forEach(v: string | number => console.log(s))
 ```
 
 If you encounter any issues with this please let me know as I find the type system fascinating and will forsake all other issues to investigate it.

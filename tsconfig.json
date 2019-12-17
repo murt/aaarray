@@ -11,12 +11,14 @@
         "strictNullChecks": true,
         "strict": true,
         "preserveConstEnums": true,
+        "inlineSources": true,
         "sourceMap": true,
         "outDir": "dist",
-        "target": "es6",
+        "target": "es5",
         "lib": ["esnext"],
         "types": ["jest", "node"],
         "declaration": true,
-        "declarationDir": "dist"
+        "declarationDir": "dist",
+        "declarationMap": true
     }
 }

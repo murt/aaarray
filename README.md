@@ -1,5 +1,6 @@
-# aaarray
+# AAArray
 
+[![NPM](https://img.shields.io/npm/v/aaarray?style=for-the-badge)](https://npmjs.com/package/aaarray)
 [![License](https://img.shields.io/npm/l/aaarray?color=blue&style=for-the-badge)](./LICENSE)
 
 ### Typed Async / Await Arrays

@@ -49,7 +49,7 @@ jobs:
           with:
             node-version: 12
         - run: yarn install
-        - run: nuget install Selenium.WebDriver.IEDriver -Version 4.0
+        - run: nuget install Selenium.WebDriver.IEDriver -Version 3.150.1
         - run: yarn build
         - run: yarn test:browser
           env:

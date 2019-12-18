@@ -25,12 +25,10 @@ describe("aaarray#xbrowser", () => {
                 }
 
                 case "firefox": {
-                    require("geckodriver");
                     return Capabilities.firefox().set("acceptInsecureCerts", true);
                 }
 
                 case "chrome": {
-                    require("chromedriver");
                     return Capabilities.chrome().set("chromeOptions", {
                         args: ["--headless", "--no-sandbox", "--disable-gpu"],
                     });

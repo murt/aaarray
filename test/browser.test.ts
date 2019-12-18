@@ -3,6 +3,10 @@ import path from "path";
 import { WebDriver, Builder, Capabilities } from "selenium-webdriver";
 
 describe("aaarray#xbrowser", () => {
+    // Set the timeout for all tests to be longer for the sake of CI systems
+    jest.setTimeout(30000);
+
+    // Re-usable WebDriver instance
     let driver: WebDriver;
 
     beforeAll(async () => {
@@ -28,7 +32,7 @@ describe("aaarray#xbrowser", () => {
                 case "chrome": {
                     require("chromedriver");
                     return Capabilities.chrome().set("chromeOptions", {
-                        args: ["--no-sandbox", "--disable-gpu"],
+                        args: ["--headless", "--no-sandbox", "--disable-gpu"],
                     });
                 }
 

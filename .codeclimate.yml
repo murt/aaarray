@@ -8,5 +8,4 @@ checks:
     config:
       threshold: 10
   similar-code:
-    config:
-      threshold: 3
+    enabled: false

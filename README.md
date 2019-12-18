@@ -1,4 +1,7 @@
 # aaarray
+
+[![License](https://img.shields.io/npm/l/aaarray?color=blue&style=for-the-badge)](./LICENSE)
+
 ### Typed Async / Await Arrays
 
 [![Status](https://img.shields.io/github/workflow/status/murt/aaarray/CI?style=for-the-badge)](https://github.com/murt/aaarray/actions?query=workflow%3ACI)
@@ -91,8 +94,8 @@ await AA([1, 2, 3])
 
 // Automatically understands union types as well
 await AA([1,2,3])
-.map(n: number) => n % 2 ? n.toString() : n)
-.forEach(v: string | number => console.log(s))
+.map((n: number) => n % 2 ? n.toString() : n)
+.forEach((v: string | number) => console.log(s))
 ```
 
 If you encounter any issues with this please let me know as I find the type system fascinating and will forsake all other issues to investigate it.

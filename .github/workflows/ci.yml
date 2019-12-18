@@ -2,8 +2,8 @@ name: CI
 on: [push, pull_request]
 jobs:
 
-  test:
-    name: Test
+  unit-test:
+    name: Unit Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,20 +25,78 @@ jobs:
         run: yarn build
 
       - name: Test
-        run: yarn test-ci
+        run: yarn test
       
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
-          path-to-lcov: reports/lcov/lcov.info
       
       - name: Coveralls Complete
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-          path-to-lcov: reports/lcov/lcov.info
 
+  internet-explorer:
+      name: Internet Explorer
+      runs-on: windows-latest
+      steps:
+        - uses: actions/checkout@v1
+        - uses: warrenbuckley/Setup-Nuget@v1
+        - uses: actions/setup-node@v1
+          with:
+            node-version: 12
+        - run: yarn install
+        - run: nuget install Selenium.WebDriver.IEDriver -Version 3.150.0
+        - run: yarn build
+        - run: yarn test:browser
+          env:
+            BROWSER: ie
+
+  safari:
+    name: Safari
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: yarn-install
+      - run: |
+          sudo safaridriver --enable
+          safaridriver -p 0 &
+      - run: yarn build
+      - run: yarn test:browser
+        env:
+          BROWSER: safari
+
+  firefox:
+    name: Firefox
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: yarn install
+      - run: yarn build
+      - run: yarn test:browser
+        env:
+          BROWSER: firefox
+
+  chrome:
+    name: Chrome
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: yarn install
+      - run: yarn build
+      - run: yarn test:browser
+        env:
+          BROWSER: chrome
 

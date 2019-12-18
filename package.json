@@ -1,6 +1,6 @@
 {
     "name": "aaarray",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "contributors": [
         "murt <murt@unpossible.io>"
     ],
@@ -18,21 +18,31 @@
     "main": "dist/aaarray.js",
     "types": "dist/aaarray.d.ts",
     "scripts": {
-        "clean": "del-cli dist reports",
-        "build": "tsc",
-        "minify": "uglifyjs --compress --output dist/aaarray.min.js --source-map \"content=dist/aaarray.js.map,includeSources\" dist/aaarray.js",
-        "test": "jest --config jest.json",
-        "test-ci": "jest --config jest.json --ci --runInBand"
+        "clean": "del-cli dist coverage junit.xml",
+        "build": "webpack",
+        "test": "npm-run-all --serial clean build test:unit",
+        "test:lint": "eslint src --ext .ts",
+        "test:unit": "jest --config jest.json --reporters default --reporters jest-junit --ci --runInBand --testPathIgnorePatterns browser.test.ts",
+        "test:browser": "jest --config jest.json --reporters default --ci --runInBand --collect-coverage=false test/browser.test.ts"
     },
     "devDependencies": {
         "@types/jest": "24.0.23",
         "@types/node": "12.12.17",
-        "coveralls": "3.0.9",
+        "@types/selenium-webdriver": "^4.0.6",
+        "@typescript-eslint/eslint-plugin": "2.12.0",
+        "chromedriver": "79.0.0",
         "del-cli": "3.0.0",
+        "eslint": "6.7.2",
+        "eslint-config-airbnb-typescript": "6.3.1",
+        "geckodriver": "1.19.1",
         "jest": "24.9.0",
         "jest-junit": "10.0.0",
+        "npm-run-all": "4.1.5",
+        "selenium-webdriver": "4.0.0-alpha.5",
         "ts-jest": "24.2.0",
+        "ts-loader": "6.2.1",
         "typescript": "3.7.3",
-        "uglify-js": "3.7.2"
+        "webpack": "4.41.3",
+        "webpack-cli": "3.3.10"
     }
 }

@@ -1,12 +1,10 @@
 {
     "include": [
-        "src/**/*.ts"
-    ],
-    "exclude": [
-        "**/*.test.ts"
+        "src/**/*.ts",
     ],
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "CommonJS",
+        "esModuleInterop": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
         "strict": true,

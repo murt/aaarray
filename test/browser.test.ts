@@ -15,8 +15,7 @@ describe("aaarray#xbrowser", () => {
         const capabilities: Capabilities = ((browser: string): Capabilities => {
             switch (browser) {
                 case "ie": {
-                    const driverPath = path.join(__dirname, "..", "Selenium.WebDriver.IEDriver.3.150.0/driver/");
-                    process.env.PATH = `${process.env.PATH};${driverPath};`;
+                    require("iedriver");
                     return Capabilities.ie()
                         .set("ignoreProtectedModeSettings", true)
                         .set("ignoreZoomSetting", true);

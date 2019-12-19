@@ -49,11 +49,25 @@ jobs:
           with:
             node-version: 12
         - run: yarn install
-        - run: nuget install Selenium.WebDriver.IEDriver -Version 3.141.0
+        - run: nuget install Selenium.WebDriver.IEDriver -Version 3.150.1
         - run: yarn build
         - run: yarn test:browser
           env:
             BROWSER: ie
+
+  edge:
+    name: Edge
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: yarn install
+      - run: yarn build
+      - run: yarn test:browser
+        env:
+          BROWSER: edge
 
   firefox:
     name: Firefox

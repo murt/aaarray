@@ -49,28 +49,11 @@ jobs:
           with:
             node-version: 12
         - run: yarn install
-        - run: nuget install Selenium.WebDriver.IEDriver -Version 3.8.0.0
+        - run: nuget install Selenium.WebDriver.IEDriver -Version 3.150.0
         - run: yarn build
         - run: yarn test:browser
           env:
             BROWSER: ie
-
-  safari:
-    name: Safari
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-      - run: yarn install
-      - run: |
-          sudo safaridriver --enable
-          safaridriver -p 0 &
-      - run: yarn build
-      - run: yarn test:browser
-        env:
-          BROWSER: safari
 
   firefox:
     name: Firefox

@@ -64,12 +64,13 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: DISM.exe /Online /Add-Capability /CapabilityName:Microsoft.WebDriver~~~~0.0.1.0
+      - run: nuget install Selenium.WebDriver.MicrosoftWebDriver -Version 10.0.17134
       - run: yarn install
       - run: yarn build
       - run: yarn test:browser
         env:
           BROWSER: edge
+          PATH: "%PATH%;C:\\Windows\\system32\\MicrosoftWebDriver.exe"
 
   firefox:
     name: Firefox

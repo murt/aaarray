@@ -64,7 +64,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: ::add-path::C:\\Windows\\system32\\MicrosoftWebDriver.exe"
+      - run: echo "::add-path::C:\\Windows\\system32\\MicrosoftWebDriver.exe"
       - run: nuget install Selenium.WebDriver.MicrosoftWebDriver -Version 10.0.17134
       - run: yarn install
       - run: yarn build

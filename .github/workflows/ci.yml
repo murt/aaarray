@@ -71,7 +71,6 @@ jobs:
       - run: yarn test:browser
         env:
           BROWSER: edge
-          PATH: "%PATH%;C:\\Windows\\system32\\MicrosoftWebDriver.exe"
 
   firefox:
     name: Firefox

@@ -10,7 +10,7 @@ declare var window: any;
 
 describe("aaarray#xbrowser", () => {
     // Set the timeout for all tests to be longer for the sake of CI systems
-    jest.setTimeout(30000);
+    jest.setTimeout(120000);
 
     // Re-usable static web server
     let server: http.Server;

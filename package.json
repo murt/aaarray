@@ -49,6 +49,6 @@
         "webpack-cli": "3.3.10"
     },
     "dependencies": {
-        "chromedriver": "78.0.1"
+        "chromedriver": "81.0.0"
     }
 }

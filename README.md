@@ -1,5 +1,6 @@
 # aaarray
-### Typed Async / Await Arrays
+
+## Typed Async / Await Arrays
 
 [![CircleCI](https://circleci.com/gh/murt/aaarray.svg?style=svg)](https://circleci.com/gh/murt/aaarray) [![Coverage Status](https://coveralls.io/repos/github/murt/aaarray/badge.svg)](https://coveralls.io/github/murt/aaarray)
 
@@ -32,7 +33,7 @@ await AA([1, 2, 3])
 .filter(r => checkAsync(r));
 ```
 
-## How?
+## How
 
 `AAArray` keeps an internal array and a queue of actions to run when told to resolve. `AAArray` is a `PromiseLike` that will resolve with a normal, ie. non-`AAArray`, value.
 
@@ -70,4 +71,4 @@ await AA([1, 2, 3])
 
 If you encounter any issues with this please let me know as I find the type system fascinating and will forsake all other issues to investigate it.
 
-In addition, Typescript complains about directly bound methods being passed as callbacks to normal Array methods that don't fully satisfy the callback API expected - for example if you wanted to log each item in a `forEach` with `console.log.bind(console)`. This is possible with AAArray for no other reason than because I wanted it. 
+In addition, Typescript complains about directly bound methods being passed as callbacks to normal Array methods that don't fully satisfy the callback API expected - for example if you wanted to log each item in a `forEach` with `console.log.bind(console)`. This is possible with AAArray for no other reason than because I wanted it.

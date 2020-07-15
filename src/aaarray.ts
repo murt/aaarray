@@ -156,15 +156,17 @@ export class AAArray<T> implements PromiseLike<T[]> {
     public async find(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.resolve();
         const results = await Promise.all(
-            value.map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
+            value.map((v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
         );
         return value[results.indexOf(true)];
     }
 
     public async findIndex(callback: AAIterCallback<T>): Promise<number> {
-        return (await Promise.all(
-            (await this.resolve()).map(async (v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
-        )).indexOf(true);
+        return (
+            await Promise.all(
+                (await this.resolve()).map((v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
+            )
+        ).indexOf(true);
     }
 
     public async findIndexSerial(callback: AAIterCallback<T>): Promise<number> {
@@ -264,9 +266,9 @@ export class AAArray<T> implements PromiseLike<T[]> {
         });
     }
 
-    public push<U>(value: U): AAArray<T|U> {
+    public push<U>(value: U): AAArray<T | U> {
         return this.mutate(arr => {
-            (arr as (T|U)[]).push(value);
+            (arr as (T | U)[]).push(value);
             return arr;
         });
     }
@@ -317,7 +319,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     /**
      * Returns a section of the array as the new array value.
-     * 
+     *
      * @param start The beginning of the specified portion of the array.
      * @param end The end of the specified portion of the array.
      */
@@ -384,9 +386,9 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    public unshift<U>(value: U): AAArray<U|T> {
+    public unshift<U>(value: U): AAArray<U | T> {
         return this.mutate(arr => {
-            (arr as (T|U)[]).unshift(value);
+            (arr as (T | U)[]).unshift(value);
             return arr;
         });
     }
@@ -475,6 +477,9 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 }
 
-export default function AA<U>(array: U[]): AAArray<U> {
+export function AA<U>(array: U[]): AAArray<U> {
     return new AAArray<U>(array);
 }
+
+// Default export is the AA function
+export default AA;

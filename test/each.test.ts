@@ -1,4 +1,4 @@
-import AA from "../src";
+import AA from "../src/aaarray";
 
 describe("aaarray#each", () => {
     it("should not mutate the original array even if not returning", async () => {

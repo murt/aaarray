@@ -1,4 +1,16 @@
 test
-.circleci
+
+coverage
+.dependabot
+.github
+
+webpack.config.js
 jest.json
 yarn.lock
+tsconfig.json
+junit.xml
+.eslintrc
+.eslintignore
+.codeclimate.yml
+.prettierrc
+*.log

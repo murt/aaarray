@@ -1,0 +1,87 @@
+name: CI
+on:
+  push:
+  pull_request:
+    branches-ignore:
+      - dependabot/*
+jobs:
+    unit-test:
+        name: Unit Test
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node_versions: [10, 11, 12, 13]
+            fail-fast: true
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Use node ${{ matrix.node_version }}
+              uses: actions/setup-node@v1
+              with:
+                  version: ${{ matrix.node_version }}
+
+            - name: Install
+              run: yarn install
+
+            - name: Build
+              run: yarn build
+
+            - name: Test
+              run: yarn test
+
+            - name: Coveralls
+              uses: coverallsapp/github-action@master
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  parallel: true
+
+            - name: Coveralls Complete
+              uses: coverallsapp/github-action@master
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  parallel-finished: true
+
+    internet-explorer:
+        name: Internet Explorer
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v1
+            - uses: warrenbuckley/Setup-Nuget@v1
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+            - run: nuget install Selenium.WebDriver.IEDriver -Version 3.150.1
+            - run: yarn install
+            - run: yarn build
+            - run: yarn test:browser
+              env:
+                  BROWSER: ie
+
+    firefox:
+        name: Firefox
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+            - run: yarn install
+            - run: yarn build
+            - run: yarn test:browser
+              env:
+                  BROWSER: firefox
+
+    chrome:
+        name: Chrome
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+            - run: yarn install
+            - run: yarn build
+            - run: yarn test:browser
+              env:
+                  BROWSER: chrome

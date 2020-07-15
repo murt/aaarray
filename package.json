@@ -1,6 +1,6 @@
 {
     "name": "aaarray",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "contributors": [
         "murt <murt@unpossible.io>"
     ],
@@ -15,23 +15,40 @@
     ],
     "repository": "murt/aaarray",
     "license": "MIT",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/aaarray.js",
+    "types": "dist/aaarray.d.ts",
     "scripts": {
-        "clean": "del-cli dist reports",
-        "build": "tsc",
-        "test": "jest --config jest.json",
-        "test-ci": "jest --config jest.json --ci --runInBand",
-        "coveralls": "cat reports/lcov/lcov.info | coveralls"
+        "clean": "del-cli dist coverage junit.xml",
+        "build": "webpack",
+        "test": "npm-run-all --serial clean build test:unit",
+        "test:lint": "eslint src --ext .ts",
+        "test:unit": "jest --config jest.json --reporters default --reporters jest-junit --ci --runInBand --testPathIgnorePatterns browser.test.ts",
+        "test:browser": "jest --config jest.json --reporters default --ci --runInBand --collect-coverage=false test/browser.test.ts"
     },
     "devDependencies": {
-        "@types/jest": "24.0.16",
-        "@types/node": "12.6.9",
-        "coveralls": "3.0.5",
-        "del-cli": "2.0.0",
-        "jest": "24.8.0",
-        "jest-junit": "7.0.0",
-        "ts-jest": "24.0.2",
-        "typescript": "3.5.3"
+        "@types/jest": "24.0.25",
+        "@types/node": "13.1.2",
+        "@types/node-static": "0.7.3",
+        "@types/selenium-webdriver": "^4.0.6",
+        "@typescript-eslint/eslint-plugin": "2.14.0",
+        "del-cli": "3.0.0",
+        "edgedriver": "4.17134.1",
+        "eslint": "6.8.0",
+        "eslint-config-airbnb-typescript": "6.3.1",
+        "geckodriver": "1.19.1",
+        "iedriver": "3.14.1",
+        "jest": "24.9.0",
+        "jest-junit": "10.0.0",
+        "node-static": "0.7.11",
+        "npm-run-all": "4.1.5",
+        "selenium-webdriver": "4.0.0-alpha.5",
+        "ts-jest": "24.2.0",
+        "ts-loader": "6.2.1",
+        "typescript": "3.7.5",
+        "webpack": "4.41.5",
+        "webpack-cli": "3.3.10"
+    },
+    "dependencies": {
+        "chromedriver": "78.0.1"
     }
 }

@@ -24,13 +24,13 @@ describe("aaarray#map", () => {
 
     it("should support chained maps", async () => {
         const results = await AA([1, 2, 3])
-            .map(async n => n * 2)
-            .map(async n => n * 3);
+            .map(n => n * 2)
+            .map(n => n * 3);
         expect(results).toEqual([6, 12, 18]);
     });
 
     it("should support multiple types", async () => {
-        const results = await AA([1, 2, 3]).map(async n => `test-${n}`);
+        const results = await AA([1, 2, 3]).map(n => `test-${n}`);
         expect(results).toEqual(["test-1", "test-2", "test-3"]);
     });
 

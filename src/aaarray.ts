@@ -65,7 +65,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * @param values Additional values to add to the array.
      */
     public concat<U>(...values: (T | U | ConcatArray<T | U>)[]): AAArray<T | U> {
-        return this.mutate(arr => (arr as (T | U)[]).concat(...values)) as AAArray<T | U>;
+        return this.mutate(arr => (arr as (T | U)[]).concat(...values));
     }
 
     /**
@@ -126,7 +126,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * length+end.
      */
     public fill<U>(value: U, start = 0, end?: number): AAArray<T | U> {
-        return this.mutate(arr => (arr as (T | U)[]).fill(value, start, end)) as AAArray<T | U>;
+        return this.mutate(arr => (arr as (T | U)[]).fill(value, start, end)); 
     }
 
     /**
@@ -190,7 +190,21 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
+    /**
+     * Returns a new array with all sub-array elements concatenated into it recursively up to the
+     * specified depth.
+     *
+     * @param depth The maximum recursion depth
+     */
     public flat(depth = 1): AAArray<T> {
+        // There is an unfortunate quirk of the FlatArray type here that the
+        // the array tries to return, it appears as though it errors on
+        // the assumption that the flattened array is an unassignable arbitrary
+        // type back to "T" - this appears to have been introduced in 3.8 of
+        // Typescript, rest assured though the return type of this method *is*
+        // the correct one. Therefore we tell tsc to expect but ignore the error.
+
+        // @ts-expect-error
         return this.mutate(arr => arr.flat(depth));
     }
 
@@ -261,10 +275,13 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return this.mutate(arr => {
             const value = arr.pop();
             // TODO: This should be fixed via a length check as "undefined" as an item is a valid value
+            // TODO: Optional chaining?
             handler && typeof value !== "undefined" && handler(value);
             return arr;
         });
     }
+
+    // TODO: popOut which returns [value, AAArray<T>]
 
     public push<U>(value: U): AAArray<T | U> {
         return this.mutate(arr => {

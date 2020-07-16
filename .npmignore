@@ -1,4 +1,9 @@
+!dist/*.js
+!dist/*.js.map
+
+src
 test
+dist
 
 coverage
 .dependabot

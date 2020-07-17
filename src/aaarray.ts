@@ -46,6 +46,12 @@ enum AAAction {
 
 type AAActionDelegate<C = AACallback<any, any>> = { action: AAAction; callback: C; serial?: boolean };
 
+// Array polyfills for flat and flatMap
+// @ts-expect-error
+const flat: typeof Array.prototype.flat = function(depth?) {
+    return depth ? Array.prototype.reduce.call(this, (prev: any, cur) => cur instanceof Array ? prev.concat(flat.call(cur, depth - 1)) : prev.concat(cur), []) : this;
+};
+
 /**
  * Asynchronous array type with chainable methods.
  */
@@ -196,19 +202,13 @@ export class AAArray<T> implements PromiseLike<T[]> {
      *
      * @param depth The maximum recursion depth
      */
-    public flat(depth = 1): AAArray<T> {
-        // There is an unfortunate quirk of the FlatArray type here that the
-        // the array tries to return, it appears as though it errors on
-        // the assumption that the flattened array is an unassignable arbitrary
-        // type back to "T" - this appears to have been introduced in 3.8 of
-        // Typescript, rest assured though the return type of this method *is*
-        // the correct one. Therefore we tell tsc to expect but ignore the error.
-
+    public flat<D extends number = 1>(depth?: D): AAArray<FlatArray<T[], D>> {
         // @ts-expect-error
-        return this.mutate(arr => arr.flat(depth));
+        return this.mutate(arr => flat.call(arr, depth ?? 1));
     }
 
     public flatMap<U>(callback: AAMapCallback<T, U>): AAArray<U> {
+        // @ts-expect-error
         return this.flat().map(callback);
     }
 

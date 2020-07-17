@@ -10,4 +10,9 @@ describe("aaarray#flat", () => {
         const results = await AA([[[1]], [[2]], [[3]]]).flat(2);
         expect(results).toEqual([1,2,3]);
     });
+
+    it("should retain nested arrays", async () => {
+        const results = await AA([[[1]], [[2]], [[3]]]).flat();
+        expect(results).toStrictEqual([[1],[2],[3]]);
+    });
 });

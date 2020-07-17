@@ -4,7 +4,7 @@ describe("aaarray#every", () => {
     it("should correctly resolve when async", async () => {
         const result = await AA([1, 2, 3]).every(
             async n =>
-                new Promise((resolve, reject) => {
+                new Promise(resolve => {
                     setTimeout(() => resolve(n > 0), 100);
                 })
         );
@@ -13,7 +13,7 @@ describe("aaarray#every", () => {
 
         const result2 = await AA([1, 2, 3]).every(
             async n =>
-                new Promise((resolve, reject) => {
+                new Promise(resolve => {
                     setTimeout(() => resolve(n < 0), 100);
                 })
         );
@@ -24,7 +24,7 @@ describe("aaarray#every", () => {
     it("should correctly resolve when async in serial", async () => {
         const result = await AA([1, 2, 3]).everySerial(
             async n =>
-                new Promise((resolve, reject) => {
+                new Promise(resolve => {
                     setTimeout(() => resolve(n > 0), 100);
                 })
         );
@@ -33,7 +33,7 @@ describe("aaarray#every", () => {
 
         const result2 = await AA([1, 2, 3]).everySerial(
             async n =>
-                new Promise((resolve, reject) => {
+                new Promise(resolve => {
                     setTimeout(() => resolve(n < 0), 100);
                 })
         );

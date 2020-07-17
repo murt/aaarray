@@ -10,7 +10,7 @@ export type AAIterCallback<T> = (value: T, index: number, arr: T[]) => any;
 /**
  * This is a callback type that describes a sorting comparison function.
  */
-export type AASortCallback<T> = (a: T, b: T) => number;
+export type AASortCallback<T> = (a: T, b: T) => number | Promise<number>;
 
 /**
  * This is a callback that describes a direct mutation of the array with corresponding type updates.
@@ -33,8 +33,9 @@ export type AAInlineCallback<T, U = T> = (value: U | undefined, arr: T | T[]) =>
  * This is a callback exclusively for reduce functionality.
  *
  * TODO: Get the types right so that the callbacks return type is properly passed to prev/accumulator
+ * TODO: typeof Array.prototype.reduce but with a possible Promise return?
  */
-export type AAReduceCallback<T, U> = (accumulator: T, currentValue: T, index: number, arr: T[]) => U | Promise<U>;
+export type AAReduceCallback<T, U = T> = (accumulator: U, currentValue: T, index: number, arr: T[]) => U | Promise<U>;
 
 enum AAAction {
     EACH,
@@ -293,28 +294,31 @@ export class AAArray<T> implements PromiseLike<T[]> {
         });
     }
 
-    public async reduce<U>(callback: AAReduceCallback<T, U>, initialValue?: any): Promise<U> {
+    // TODO: Reducers that return new reduced arrays to continue with, must explicitly be arrays?
+
+    public async reduce<U = T>(callback: AAReduceCallback<T, U>, initialValue?: U): Promise<U> {
         const iv = typeof initialValue !== "undefined";
         const value = await this.resolve();
         if (!iv && !value.length) {
-            throw new TypeError();
+            throw new TypeError("Reduce of empty array with no initial value");
         } else {
-            let acc = iv ? initialValue : value[0];
+            let acc = iv ? initialValue as U : value[0]; 
             for (let i = iv ? 0 : 1; i < value.length; ++i) {
-                acc = await callback(acc, value[i], i, value);
+                acc = await callback(acc as U, value[i], i, value);
             }
-            return acc;
+            return acc as U;
         }
     }
 
-    public async reduceRight<U>(callback: AAReduceCallback<T, U>, initialValue?: any): Promise<U> {
+    public async reduceRight<U>(callback: AAReduceCallback<T, U>, initialValue?: U): Promise<U | T> {
         const iv = typeof initialValue !== "undefined";
         const value = await this.resolve();
         if (!iv && !value.length) {
-            throw new TypeError();
+            throw new TypeError("Reduce of empty array with no initial value");
         } else {
-            let acc = iv ? initialValue : value[value.length - 1];
+            let acc = iv ? initialValue as U : value[value.length - 1];
             for (let i = iv ? value.length - 1 : value.length - 2; i >= 0; --i) {
+                // @ts-expect-error
                 acc = await callback(acc, value[i], i, value);
             }
             return acc;
@@ -464,8 +468,8 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
-    protected async runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): Promise<U[] | T[]> {
-        const result = await action.callback([...arr]);
+    protected runMutate<U>(arr: T[], action: AAActionDelegate<AAMutateCallback<T, U>>): U[] | T[] {
+        const result = action.callback([...arr]);
         if (result instanceof Array) {
             return result;
         } else if (typeof result === "undefined") {

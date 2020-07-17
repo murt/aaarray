@@ -42,7 +42,7 @@ describe("aaarray#map", () => {
         const results: number[] = [];
         await AA([1, 2, 3]).mapSerial(
             (n: number, i: number, array: number[]) =>
-                new Promise((resolve, reject) => {
+                new Promise(resolve => {
                     setTimeout(() => {
                         results.push(n);
                         resolve(n);

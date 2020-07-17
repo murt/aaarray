@@ -3,7 +3,7 @@ import AA from "../src/aaarray";
 describe("aaarray#each", () => {
     it("should not mutate the original array even if not returning", async () => {
         let counter = 0;
-        const results = await AA([1, 2, 3, 4]).each((n) => {
+        const results = await AA([1, 2, 3, 4]).each(n => {
             counter += n;
         });
         expect(results).toEqual([1, 2, 3, 4]);
@@ -12,8 +12,8 @@ describe("aaarray#each", () => {
 
     it("should not mutate the original array even if returning", async () => {
         let counter = 0;
-        const results = await AA([1, 2, 3, 4]).each(async (n) => {
-            return new Promise((resolve, reject) => {
+        const results = await AA([1, 2, 3, 4]).each(async n => {
+            return new Promise(resolve => {
                 setTimeout(resolve, 100);
             }).then(() => (counter += n));
         });
@@ -24,7 +24,7 @@ describe("aaarray#each", () => {
     it("should support serial each", async () => {
         const counters: number[] = [];
         const results = await AA([1, 2, 3]).eachSerial((n: number, i: number, array: number[]) =>
-            new Promise((resolve, reject) => {
+            new Promise(resolve => {
                 setTimeout(resolve, (array.length - i) * 100);
             }).then(() => counters.push(n * 2))
         );

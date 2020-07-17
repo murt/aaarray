@@ -4,7 +4,7 @@ describe("aaarray#filter", () => {
     it("should support async functions", async () => {
         const results = await AA([1, 2, 3]).filter(
             async n =>
-                new Promise((resolve, reject) => {
+                new Promise(resolve => {
                     setTimeout(() => resolve(n === 2), 100);
                 })
         );

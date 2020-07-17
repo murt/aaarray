@@ -1,12 +1,13 @@
-import path from "path";
-
 import { WebDriver, Builder, Capabilities } from "selenium-webdriver";
 import { Server } from "node-static";
 import http from "http";
 
 const BROWSER = process.env.BROWSER || "chrome";
 
-declare var window: any;
+// Async runner function that is bound to a driver instance to execute a wrapped async script.
+async function execScript(this: WebDriver, script: string): Promise<any> {
+    return this.executeAsyncScript(`var done = arguments[0]; (${script}).then(done)`);
+}
 
 describe("aaarray#xbrowser", () => {
     // Set the timeout for all tests to be longer for the sake of CI systems
@@ -19,7 +20,7 @@ describe("aaarray#xbrowser", () => {
     let driver: WebDriver;
 
     //  pointer to script execution function
-    let AAScript: Function;
+    let AAScript: (script: string) => ReturnType<typeof execScript>;
 
     // Create the web server to get around browser restrictions for local fiels that require GUI interaction.
     // Note that this is bound to the base directory in order to access the built files.
@@ -119,8 +120,3 @@ describe("aaarray#xbrowser", () => {
         expect(await AAScript("AA([1,2,3]).map(function(n) { return n + 1; }).get(0)")).toBe(2);
     });
 });
-
-// Async runner function that is bound to a driver instance to execute a wrapped async script.
-async function execScript(this: WebDriver, script: string): Promise<any> {
-    return this.executeAsyncScript(`var done = arguments[0]; (${script}).then(done)`);
-}

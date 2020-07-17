@@ -27,7 +27,7 @@ type AACallback<T, U> = AAMapCallback<T, U> | AAIterCallback<T> | AASortCallback
  * value needs to be returned as it is not used. If the callback is async AAArray will wait before it finishes to
  * proceed onto any other steps in the chain.
  */
-export type AAInlineCallback<T, U = T> = (arr: T | T[]) => Promise<void>;
+export type AAInlineCallback<T, U = T> = (value: U | undefined, arr: T | T[]) => Promise<void> | void;
 
 /**
  * This is a callback exclusively for reduce functionality.
@@ -48,8 +48,14 @@ type AAActionDelegate<C = AACallback<any, any>> = { action: AAAction; callback: 
 
 // Array polyfills for flat and flatMap
 // @ts-expect-error
-const flat: typeof Array.prototype.flat = function(depth?) {
-    return depth ? Array.prototype.reduce.call(this, (prev: any, cur) => cur instanceof Array ? prev.concat(flat.call(cur, depth - 1)) : prev.concat(cur), []) : this;
+const flat: typeof Array.prototype.flat = function (depth?) {
+    return depth
+        ? Array.prototype.reduce.call(
+              this,
+              (prev: any, cur) => (cur instanceof Array ? prev.concat(flat.call(cur, depth - 1)) : prev.concat(cur)),
+              []
+          )
+        : this;
 };
 
 /**
@@ -132,7 +138,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * length+end.
      */
     public fill<U>(value: U, start = 0, end?: number): AAArray<T | U> {
-        return this.mutate(arr => (arr as (T | U)[]).fill(value, start, end)); 
+        return this.mutate(arr => (arr as (T | U)[]).fill(value, start, end));
     }
 
     /**
@@ -224,7 +230,8 @@ export class AAArray<T> implements PromiseLike<T[]> {
     }
 
     public async get(index: number): Promise<T> {
-        return (await this.resolve())[index];
+        const arr = await this.resolve();
+        return arr[index < 0 ? index + arr.length : index];
     }
 
     public async includes(valueToFind: T, fromIndex = 0): Promise<boolean> {
@@ -239,12 +246,16 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return (await this.resolve()).join(separator);
     }
 
-    public async length(): Promise<number> {
-        return (await this.resolve()).length;
+    public async last(): Promise<T> {
+        return this.get(-1);
     }
 
     public async lastIndexOf(searchElement: T, fromIndex = 0): Promise<number> {
         return (await this.resolve()).lastIndexOf(searchElement, fromIndex);
+    }
+
+    public async length(): Promise<number> {
+        return (await this.resolve()).length;
     }
 
     public map<U>(callback: AAMapCallback<T, U>): AAArray<U> {
@@ -271,17 +282,9 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return (this as unknown) as AAArray<U>;
     }
 
-    public pop(handler?: AAInlineCallback<T>): AAArray<T> {
-        return this.mutate(arr => {
-            const value = arr.pop();
-            // TODO: This should be fixed via a length check as "undefined" as an item is a valid value
-            // TODO: Optional chaining?
-            handler && typeof value !== "undefined" && handler(value);
-            return arr;
-        });
+    public async pop(): Promise<T | undefined> {
+        return (await this.resolve()).pop();
     }
-
-    // TODO: popOut which returns [value, AAArray<T>]
 
     public push<U>(value: U): AAArray<T | U> {
         return this.mutate(arr => {
@@ -325,13 +328,8 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return this.mutate(arr => arr.reverse());
     }
 
-    public shift(handler?: AAInlineCallback<T>): AAArray<T> {
-        return this.mutate(arr => {
-            const value = arr.shift();
-            // TODO: This should be fixed via a length check as "undefined" as an item is a valid value
-            handler && typeof value !== "undefined" && handler(value);
-            return arr;
-        });
+    public async shift(): Promise<T | undefined> {
+        return (await this.resolve()).shift();
     }
 
     /**

@@ -4,7 +4,7 @@ describe("aaarray#map", () => {
     it("should support async functions", async () => {
         const results = await AA([1, 2, 3]).map(
             async n =>
-                new Promise<number>((resolve, reject) => {
+                new Promise<number>(resolve => {
                     setTimeout(() => resolve(n * 2), 100);
                 })
         );
@@ -18,6 +18,7 @@ describe("aaarray#map", () => {
     });
 
     it("should support async functions without await", async () => {
+        // eslint-disable-next-line @typescript-eslint/require-await
         const results = await AA([1, 2, 3]).map(async n => n * 2);
         expect(results).toEqual([2, 4, 6]);
     });

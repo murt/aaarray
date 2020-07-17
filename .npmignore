@@ -1,9 +1,5 @@
-!dist/*.js
-!dist/*.js.map
-
 src
 test
-dist
 
 coverage
 .dependabot
@@ -13,9 +9,9 @@ webpack.config.js
 jest.json
 yarn.lock
 tsconfig.json
+tsconfig.test.json
 junit.xml
-.eslintrc
-.eslintignore
+.eslintrc.json
 .codeclimate.yml
 .prettierrc
 *.log

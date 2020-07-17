@@ -5,6 +5,11 @@
     },
     "testPathIgnorePatterns": ["/node_modules/"],
     "moduleFileExtensions": ["ts", "js"],
+    "globals": {
+        "ts-jest": {
+            "tsConfig": "tsconfig.test.json"
+        }
+    },
     "collectCoverage": true,
     "collectCoverageFrom": ["<rootDir>/src/**/*.ts"],
     "coverageReporters": ["text", "lcovonly"],

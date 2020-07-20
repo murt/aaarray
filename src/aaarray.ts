@@ -85,7 +85,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     protected readonly queue: AAActionDelegate[];
 
     public constructor(array: T[] = []) {
-        if (array instanceof Array) {
+        if (Array.isArray(array)) {
             this.array = array;
             this.queue = [];
         } else {

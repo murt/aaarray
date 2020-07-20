@@ -1,3 +1,5 @@
+import { Type } from "selenium-webdriver/lib/logging";
+
 export type AAMapCallback<T, U> = (value: T, index: number, arr: T[]) => U | Promise<U>;
 
 /**
@@ -60,6 +62,21 @@ const flat: typeof Array.prototype.flat = function (depth?) {
 };
 
 /**
+ * Decorator to ensure that a function is provided as the first argument as a callback.
+ */
+function validCallback(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...args: any[]) {
+        if (typeof args[0] !== "function") {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            throw TypeError(`${args[0]} is not a function`);
+        } else {
+            return originalMethod.apply(this, args);
+        }
+    };
+}
+
+/**
  * Asynchronous array type with chainable methods.
  */
 export class AAArray<T> implements PromiseLike<T[]> {
@@ -67,9 +84,13 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     protected readonly queue: AAActionDelegate[];
 
-    public constructor(array: T[]) {
-        this.array = array;
-        this.queue = [];
+    public constructor(array: T[] = []) {
+        if (array instanceof Array) {
+            this.array = array;
+            this.queue = [];
+        } else {
+            throw new TypeError("Cannot create AAArray from non-array value");
+        }
     }
 
     /**
@@ -87,6 +108,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      *
      * @param callback Function to call on each item, in parallel, of the array.
      */
+    @validCallback
     public each(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.EACH, callback, serial: false });
         return this;
@@ -98,6 +120,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      *
      * @param callback Function to on each item, in serial, of the array.
      */
+    @validCallback
     public eachSerial(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.EACH, callback, serial: true });
         return this;
@@ -109,6 +132,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      *
      * @param callback Callback to determine either a truthy or falsy value for each item in the array.
      */
+    @validCallback
     public async every(callback: AAIterCallback<T>): Promise<boolean> {
         return (await Promise.all((await this.resolve()).map((v, i, a) => callback(v, i, a)))).every(Boolean);
     }
@@ -119,6 +143,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      *
      * @param callback Callback to determine either a truthy or falsy value for each item in the array.
      */
+    @validCallback
     public async everySerial(callback: AAIterCallback<T>): Promise<boolean> {
         const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
@@ -149,6 +174,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * @param callbackfn A function that accepts up to three arguments. The filter method calls the callbackfn function
      * one time for each element in the array in parallel.
      */
+    @validCallback
     public filter(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.FILTER, callback, serial: false });
         return this;
@@ -161,11 +187,13 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * @param callbackfn A function that accepts up to three arguments. The filter method calls the callbackfn function
      * one time for each element in the array in serial.
      */
+    @validCallback
     public filterSerial(callback: AAIterCallback<T>): AAArray<T> {
         this.queue.push({ action: AAAction.FILTER, callback, serial: true });
         return this;
     }
 
+    @validCallback
     public async find(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.resolve();
         const results = await Promise.all(
@@ -174,6 +202,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return value[results.indexOf(true)];
     }
 
+    @validCallback
     public async findIndex(callback: AAIterCallback<T>): Promise<number> {
         return (
             await Promise.all(
@@ -182,6 +211,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         ).indexOf(true);
     }
 
+    @validCallback
     public async findIndexSerial(callback: AAIterCallback<T>): Promise<number> {
         const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
@@ -193,6 +223,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return -1;
     }
 
+    @validCallback
     public async findSerial(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
@@ -214,15 +245,18 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return this.mutate(arr => flat.call(arr, depth ?? 1));
     }
 
+    @validCallback
     public flatMap<U>(callback: AAMapCallback<T, U>): AAArray<U> {
         // @ts-expect-error
         return this.flat().map(callback);
     }
 
+    @validCallback
     public async forEach(callback: AAIterCallback<T>): Promise<void> {
         await Promise.all((await this.resolve()).map(callback));
     }
 
+    @validCallback
     public async forEachSerial(callback: AAIterCallback<T>): Promise<void> {
         const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
@@ -259,20 +293,25 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return (await this.resolve()).length;
     }
 
+    @validCallback
     public map<U>(callback: AAMapCallback<T, U>): AAArray<U> {
         this.queue.push({ action: AAAction.MAP, callback, serial: false });
         return (this as unknown) as AAArray<U>;
     }
 
+    @validCallback
     public mapSerial<U>(callback: AAMapCallback<T, U>): AAArray<U> {
         this.queue.push({ action: AAAction.MAP, callback, serial: true });
         return (this as unknown) as AAArray<U>;
     }
 
     /**
+     * TODO: I am not convinced this shouldn't be async and handle *all* mutation cases
+     * 
      * Arbitrarily mutate the array and return back to AAArray. This allows for any type of transformation to take
-     * place (including those that require async functionality). The provided array is a copy of the current value
-     * in the AAArray, it can be mutated as needed and then returned or an entirely new array can also be provided.
+     * place. The provided array is a copy of the current value it can be mutated as needed and then returned or an
+     * entirely new array can also be provided.
+     * 
      * Direct mutations, such as setting a value at an index, do not affect the original array unless the modified
      * array is returned.
      *
@@ -296,13 +335,14 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     // TODO: Reducers that return new reduced arrays to continue with, must explicitly be arrays?
 
+    @validCallback
     public async reduce<U = T>(callback: AAReduceCallback<T, U>, initialValue?: U): Promise<U> {
         const iv = typeof initialValue !== "undefined";
         const value = await this.resolve();
         if (!iv && !value.length) {
             throw new TypeError("Reduce of empty array with no initial value");
         } else {
-            let acc = iv ? initialValue as U : value[0]; 
+            let acc = iv ? (initialValue as U) : value[0];
             for (let i = iv ? 0 : 1; i < value.length; ++i) {
                 acc = await callback(acc as U, value[i], i, value);
             }
@@ -310,13 +350,14 @@ export class AAArray<T> implements PromiseLike<T[]> {
         }
     }
 
+    @validCallback
     public async reduceRight<U>(callback: AAReduceCallback<T, U>, initialValue?: U): Promise<U | T> {
         const iv = typeof initialValue !== "undefined";
         const value = await this.resolve();
         if (!iv && !value.length) {
             throw new TypeError("Reduce of empty array with no initial value");
         } else {
-            let acc = iv ? initialValue as U : value[value.length - 1];
+            let acc = iv ? (initialValue as U) : value[value.length - 1];
             for (let i = iv ? value.length - 1 : value.length - 2; i >= 0; --i) {
                 // @ts-expect-error
                 acc = await callback(acc, value[i], i, value);
@@ -346,10 +387,12 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return this.mutate(arr => arr.slice(begin, end));
     }
 
+    @validCallback
     public async some(callback: AAIterCallback<T>): Promise<boolean> {
         return (await Promise.all((await this.resolve()).map((v, i, a) => callback(v, i, a)))).some(v => Boolean(v));
     }
 
+    @validCallback
     public async someSerial(callback: AAIterCallback<T>): Promise<boolean> {
         const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
@@ -360,6 +403,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return false;
     }
 
+    // TODO: Valid callback if exists? New decorator?
     public sort(callback?: AASortCallback<T>): AAArray<T> {
         this.queue.push({
             action: AAAction.SORT,
@@ -377,9 +421,6 @@ export class AAArray<T> implements PromiseLike<T[]> {
         });
         return this;
     }
-
-    // TODO: pop?, push?, shift?, splice?, unshift?
-    // These could be done with a final optional callback to handle the extra value while modifying the array as needed?
 
     public async resolve(): Promise<T[]> {
         let arr = this.array;

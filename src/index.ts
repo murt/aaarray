@@ -1,80 +1,18 @@
-import { Type } from "selenium-webdriver/lib/logging";
+import {
+    AAMapCallback,
+    AASortCallback,
+    AAIterCallback,
+    AAMutateCallback,
+    AACallback,
+    AAInlineCallback,
+    AAReduceCallback,
+    AAAction,
+    AAActionDelegate,
+} from "./types";
 
-export type AAMapCallback<T, U> = (value: T, index: number, arr: T[]) => U | Promise<U>;
+import { flat } from "./utils";
 
-/**
- * This is a callback type that describes a function called when iterating over the values in the AAArray. It is possible
- * for it to return truthy/false values (eg. filter) or simply return nothing (eg. forEach); This is different to the
- * map callbacks as the return type is *not* important here.
- */
-export type AAIterCallback<T> = (value: T, index: number, arr: T[]) => any;
-
-/**
- * This is a callback type that describes a sorting comparison function.
- */
-export type AASortCallback<T> = (a: T, b: T) => number | Promise<number>;
-
-/**
- * This is a callback that describes a direct mutation of the array with corresponding type updates.
- */
-export type AAMutateCallback<T, U = T> = (arr: T[]) => U[];
-
-// TODO: Investigate if we can actually see the full type of the callback as this might be handy in autocomp
-// down the line - right now it only shows AAMapCallback for example instead of all the params actually needed.
-type AACallback<T, U> = AAMapCallback<T, U> | AAIterCallback<T> | AASortCallback<T> | AAMutateCallback<T, U>;
-
-/**
- * This is an optional inline callback that, when supplied, will receive portions of the array that mutational methods
- * provide - for example pop or shift will provide the value they remove from the original array to this function. No
- * value needs to be returned as it is not used. If the callback is async AAArray will wait before it finishes to
- * proceed onto any other steps in the chain.
- */
-export type AAInlineCallback<T, U = T> = (value: U | undefined, arr: T | T[]) => Promise<void> | void;
-
-/**
- * This is a callback exclusively for reduce functionality.
- *
- * TODO: Get the types right so that the callbacks return type is properly passed to prev/accumulator
- * TODO: typeof Array.prototype.reduce but with a possible Promise return?
- */
-export type AAReduceCallback<T, U = T> = (accumulator: U, currentValue: T, index: number, arr: T[]) => U | Promise<U>;
-
-enum AAAction {
-    EACH,
-    FILTER,
-    MAP,
-    MUTATE,
-    SORT,
-}
-
-type AAActionDelegate<C = AACallback<any, any>> = { action: AAAction; callback: C; serial?: boolean };
-
-// Array polyfills for flat and flatMap
-// @ts-expect-error
-const flat: typeof Array.prototype.flat = function (depth?) {
-    return depth
-        ? Array.prototype.reduce.call(
-              this,
-              (prev: any, cur) => (cur instanceof Array ? prev.concat(flat.call(cur, depth - 1)) : prev.concat(cur)),
-              []
-          )
-        : this;
-};
-
-/**
- * Decorator to ensure that a function is provided as the first argument as a callback.
- */
-function validCallback(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value;
-    descriptor.value = function (...args: any[]) {
-        if (typeof args[0] !== "function") {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw TypeError(`${args[0]} is not a function`);
-        } else {
-            return originalMethod.apply(this, args);
-        }
-    };
-}
+import { validCallback } from "./decorators";
 
 /**
  * Asynchronous array type with chainable methods.
@@ -307,11 +245,11 @@ export class AAArray<T> implements PromiseLike<T[]> {
 
     /**
      * TODO: I am not convinced this shouldn't be async and handle *all* mutation cases
-     * 
+     *
      * Arbitrarily mutate the array and return back to AAArray. This allows for any type of transformation to take
      * place. The provided array is a copy of the current value it can be mutated as needed and then returned or an
      * entirely new array can also be provided.
-     * 
+     *
      * Direct mutations, such as setting a value at an index, do not affect the original array unless the modified
      * array is returned.
      *

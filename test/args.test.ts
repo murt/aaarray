@@ -1,4 +1,4 @@
-import AA, { AAArray } from "../src/aaarray";
+import AA, { AAArray } from "../src";
 
 /**
  * @important

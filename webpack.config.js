@@ -1,6 +1,6 @@
 const path = require("path");
 
-const entry = path.resolve("src", "aaarray.ts");
+const entry = path.resolve("src", "index.ts");
 
 const output = {
     path: path.resolve("dist"),

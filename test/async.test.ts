@@ -1,4 +1,4 @@
-import AA from "../src/aaarray";
+import AA from "../src";
 
 describe("aaarray#async", () => {
     it("should allow async await without value calls", async () => {

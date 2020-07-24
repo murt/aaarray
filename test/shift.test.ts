@@ -1,4 +1,4 @@
-import AA from "../src/aaarray";
+import AA from "../src";
 
 describe("aaarray#shift", () => {
     it("should provide the first element", async () => {

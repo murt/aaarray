@@ -1,4 +1,4 @@
-import AA from "../src/aaarray";
+import AA from "../src";
 
 describe("aaarray#reduce", () => {
     it("should reduce without an initial value", async () => {

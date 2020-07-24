@@ -1,4 +1,4 @@
-import AA from "../src/aaarray";
+import AA from "../src";
 
 describe("aaarray#every", () => {
     it("should correctly resolve when async", async () => {

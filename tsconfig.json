@@ -1,5 +1,5 @@
 {
-    "files": ["src/aaarray.ts"],
+    "files": ["src/index.ts", "src/types.ts", "src/utils.ts", "src/decorators.ts"],
     "compilerOptions": {
         "module": "CommonJS",
         "esModuleInterop": true,

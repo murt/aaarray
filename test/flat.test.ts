@@ -1,4 +1,4 @@
-import AA from "../src/aaarray";
+import AA from "../src";
 
 describe("aaarray#flat", () => {
     it("should flatten an array to a single depth by default", async () => {

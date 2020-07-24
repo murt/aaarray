@@ -1,4 +1,4 @@
-import AA from "../src/aaarray";
+import AA from "../src";
 
 describe("aaarray#fill", () => {
     it("should fill array with same type", async () => {

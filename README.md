@@ -1,4 +1,4 @@
-# ![AAArray](https://raw.githubusercontent.com/murt/aaarray/assets/logo.png)
+# ![AAArray](https://raw.githubusercontent.com/murt/aaarray/master/logo.png)
 
 ### Typed Async / Await Arrays
 

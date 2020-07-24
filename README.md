@@ -1,10 +1,9 @@
-# AAArray
-
-[![NPM](https://img.shields.io/npm/v/aaarray?style=for-the-badge)](https://npmjs.com/package/aaarray)
-[![License](https://img.shields.io/npm/l/aaarray?color=blue&style=for-the-badge)](./LICENSE)
+# ![AAArray](https://raw.githubusercontent.com/murt/aaarray/assets/logo.png)
 
 ### Typed Async / Await Arrays
 
+[![NPM](https://img.shields.io/npm/v/aaarray?style=for-the-badge)](https://npmjs.com/package/aaarray)
+[![License](https://img.shields.io/npm/l/aaarray?color=blue&style=for-the-badge)](./LICENSE)
 [![Status](https://img.shields.io/github/workflow/status/murt/aaarray/CI?style=for-the-badge)](https://github.com/murt/aaarray/actions?query=workflow%3ACI)
 [![Coverage](https://img.shields.io/coveralls/github/murt/aaarray?style=for-the-badge)](https://coveralls.io/github/murt/aaarray)
 [![Maintainability](https://img.shields.io/codeclimate/maintainability/murt/aaarray?style=for-the-badge)](https://codeclimate.com/github/murt/aaarray)

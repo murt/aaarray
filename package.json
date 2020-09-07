@@ -35,7 +35,7 @@
         "del-cli": "3.0.1",
         "edgedriver": "4.17134.1",
         "eslint": "7.4.0",
-        "eslint-config-airbnb-typescript": "8.0.2",
+        "eslint-config-airbnb-typescript": "9.0.0",
         "geckodriver": "1.19.1",
         "iedriver": "3.14.2",
         "jest": "26.4.2",

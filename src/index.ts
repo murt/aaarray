@@ -3,8 +3,6 @@ import {
     AASortCallback,
     AAIterCallback,
     AAMutateCallback,
-    AACallback,
-    AAInlineCallback,
     AAReduceCallback,
     AAAction,
     AAActionDelegate,
@@ -135,7 +133,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     public async find(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.resolve();
         const results = await Promise.all(
-            value.map((v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
+            value.map((v, i, a) => Promise.resolve(callback(v, i, a)).then((r: any) => (r ? true : false)))
         );
         return value[results.indexOf(true)];
     }
@@ -144,7 +142,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
     public async findIndex(callback: AAIterCallback<T>): Promise<number> {
         return (
             await Promise.all(
-                (await this.resolve()).map((v, i, a) => callback(v, i, a).then((r: any) => (r ? true : false)))
+                (await this.resolve()).map((v, i, a) => Promise.resolve(callback(v, i, a)).then((r: any) => (r ? true : false)))
             )
         ).indexOf(true);
     }

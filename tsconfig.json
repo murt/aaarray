@@ -11,7 +11,7 @@
         "inlineSources": true,
         "sourceMap": true,
         "outDir": "dist",
-        "target": "es5",
+        "target": "ES5",
         "lib": ["esnext"],
         "declaration": true,
         "declarationDir": "dist",

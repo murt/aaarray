@@ -20,7 +20,7 @@
     "scripts": {
         "clean": "del-cli dist coverage junit.xml",
         "build": "webpack",
-        "test": "npm-run-all --serial clean build test:unit",
+        "test": "npm-run-all --serial clean test:lint build test:unit",
         "test:lint": "eslint src test --ext .ts",
         "test:unit": "jest --config jest.json --reporters default --reporters jest-junit --ci --runInBand --testPathIgnorePatterns browser.test.ts",
         "test:browser": "jest --config jest.json --reporters default --ci --runInBand --collect-coverage=false test/browser.test.ts"

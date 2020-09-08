@@ -107,7 +107,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * Returns the elements of an array that meet the condition specified in a callback function that is applied
      * to each item of the array in parallel.
      *
-     * @param callbackfn A function that accepts up to three arguments. The filter method calls the callbackfn function
+     * @param callback A function that accepts up to three arguments. The filter method calls the callbackfn function
      * one time for each element in the array in parallel.
      */
     @validCallback
@@ -120,7 +120,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
      * Returns the elements of an array that meet the condition specified in a callback function that is applied
      * to each item of the array in serial.
      *
-     * @param callbackfn A function that accepts up to three arguments. The filter method calls the callbackfn function
+     * @param callback A function that accepts up to three arguments. The filter method calls the callbackfn function
      * one time for each element in the array in serial.
      */
     @validCallback
@@ -129,22 +129,43 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return this;
     }
 
+    /**
+     * Returns the value of the first element in the array where predicate is true, and undefined
+     * otherwise.
+     *
+     * It is important to note that all Promises will finish before a result is provided.
+     *
+     * @param callback find calls predicate once for each element of the array, in parallel, until it finds one where
+     * predicate returns true. If such an element is found, find immediately returns that element value.
+     * Otherwise, find returns undefined.
+     */
     @validCallback
     public async find(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.resolve();
-        const results = await Promise.all(
-            value.map((v, i, a) => Promise.resolve(callback(v, i, a)).then((r: any) => (r ? true : false)))
+        let foundIndex = -1;
+        // TODO: Look into Promise.race to see if we can speed up the lookup
+        await Promise.all(
+            value.map((v, i, a) =>
+                Promise.resolve(callback(v, i, a)).then((r: any) => {
+                    foundIndex = r && foundIndex === -1 ? i : foundIndex;
+                })
+            )
         );
-        return value[results.indexOf(true)];
+        return value[foundIndex];
     }
 
     @validCallback
     public async findIndex(callback: AAIterCallback<T>): Promise<number> {
         return (
-            await Promise.all(
-                (await this.resolve()).map((v, i, a) => Promise.resolve(callback(v, i, a)).then((r: any) => (r ? true : false)))
-            )
-        ).indexOf(true);
+            // TODO: Same as find above, refactor to allow for the different speeds of finding in parallel
+            (
+                await Promise.all(
+                    (await this.resolve()).map((v, i, a) =>
+                        Promise.resolve(callback(v, i, a)).then((r: any) => (r ? true : false))
+                    )
+                )
+            ).indexOf(true)
+        );
     }
 
     @validCallback
@@ -159,13 +180,21 @@ export class AAArray<T> implements PromiseLike<T[]> {
         return -1;
     }
 
+    /**
+     * Returns the value of the first element in the array where predicate is true, and undefined
+     * otherwise.
+     *
+     * @param callback find calls predicate once for each element of the array, in ascending
+     * order, until it finds one where predicate returns true. If such an element is found, find
+     * immediately returns that element value. Otherwise, find returns undefined.
+     */
     @validCallback
     public async findSerial(callback: AAIterCallback<T>): Promise<T | undefined> {
         const value = await this.resolve();
         for (let i = 0; i < value.length; ++i) {
-            const result = await callback(value[i], i, value);
+            const result = await Promise.resolve(callback(value[i], i, value));
             if (result) {
-                return result;
+                return value[i];
             }
         }
     }

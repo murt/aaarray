@@ -3090,10 +3090,10 @@ iconv-lite@0.4.24:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
-iedriver@3.14.2:
-  version "3.14.2"
-  resolved "https://registry.yarnpkg.com/iedriver/-/iedriver-3.14.2.tgz#a19391ff123e21823ce0afe300e38b58a7dc79c4"
-  integrity sha512-vvFwfpOOZXmpXT/3Oa9SOFrr4uZNNUtBKPLRz7z8oZigvvIOokDiBlbImrd80q+rgjkmqUGi6a2NnpyCOAXnOw==
+iedriver@3.150.1:
+  version "3.150.1"
+  resolved "https://registry.yarnpkg.com/iedriver/-/iedriver-3.150.1.tgz#57eb63a91c371c911f89a687db8364554c7a08bb"
+  integrity sha512-Iu2rwGRl90ZQo8yY/BPIXKtPRe/mpmjD2xjqTl2Zi+yU4/LODCZSHqK6EcgLlgrnH8FHRJiZj7fkEsLyz7mEZA==
   dependencies:
     extract-zip "1.7.0"
     kew "~0.1.7"

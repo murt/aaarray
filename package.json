@@ -30,7 +30,7 @@
         "@types/node": "14.6.4",
         "@types/node-static": "0.7.5",
         "@types/selenium-webdriver": "4.0.9",
-        "@typescript-eslint/eslint-plugin": "4.1.0",
+        "@typescript-eslint/eslint-plugin": "4.5.0",
         "chromedriver": "85.0.1",
         "del-cli": "3.0.1",
         "edgedriver": "4.17134.1",

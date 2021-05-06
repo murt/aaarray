@@ -42,18 +42,6 @@ describe("aaarray#browser", () => {
     beforeAll(async () => {
         const capabilities: Capabilities = ((browser: string): Capabilities => {
             switch (browser) {
-                case "ie": {
-                    require("iedriver");
-                    return Capabilities.ie()
-                        .set("ignoreProtectedModeSettings", true)
-                        .set("ignoreZoomSetting", true);
-                }
-
-                case "edge": {
-                    require("edgedriver");
-                    return Capabilities.edge();
-                }
-
                 case "safari": {
                     return Capabilities.safari();
                 }

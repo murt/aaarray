@@ -89,7 +89,7 @@ describe("aaarray#xbrowser", () => {
     });
 
     afterAll(async () => {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             server.close((err?: Error) => {
                 if (err) {
                     reject(err);

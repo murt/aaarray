@@ -9,7 +9,7 @@ async function execScript(this: WebDriver, script: string): Promise<any> {
     return this.executeAsyncScript(`var done = arguments[0]; (${script}).then(done)`);
 }
 
-describe("aaarray#xbrowser", () => {
+describe("aaarray#browser", () => {
     // Set the timeout for all tests to be longer for the sake of CI systems
     jest.setTimeout(120000);
 

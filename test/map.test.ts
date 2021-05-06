@@ -1,4 +1,5 @@
 import AA from "../src";
+import timerPromise from "./utils/timer-promise";
 
 describe("aaarray#map", () => {
     it("should support async functions", async () => {
@@ -18,8 +19,7 @@ describe("aaarray#map", () => {
     });
 
     it("should support async functions without await", async () => {
-        // eslint-disable-next-line @typescript-eslint/require-await
-        const results = await AA([1, 2, 3]).map(async n => n * 2);
+        const results = await AA([1, 2, 3]).map(timerPromise(n => n * 2));
         expect(results).toEqual([2, 4, 6]);
     });
 

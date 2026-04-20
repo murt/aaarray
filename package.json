@@ -14,16 +14,19 @@
         "async-array",
         "map"
     ],
-    "repository": "murt/aaarray",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/murt/aaarray.git"
+    },
     "license": "MIT",
     "main": "dist/aaarray.js",
     "types": "dist/aaarray.d.ts",
     "scripts": {
-        "clean": "del-cli dist coverage",
+        "clean": "del-cli dist coverage test-results",
         "build": "vite build",
         "test": "npm-run-all --serial clean test:lint build test:unit",
         "test:lint": "eslint src test",
-        "test:unit": "vitest run",
+        "test:unit": "vitest run --coverage",
         "test:browser": "playwright test"
     },
     "devDependencies": {

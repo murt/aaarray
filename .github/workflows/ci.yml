@@ -36,12 +36,22 @@ jobs:
             - name: Test
               run: pnpm test
 
-            - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v5
+            - name: Upload coverage to Coveralls
+              uses: coverallsapp/github-action@v2
               with:
-                  files: ./coverage/lcov.info
-                  flags: unittests
-                  fail_ci_if_error: false
+                  file: ./coverage/lcov.info
+                  flag-name: node-${{ matrix.node-version }}
+                  parallel: true
+
+    coveralls-finish:
+        name: Coveralls Finished
+        needs: unit-test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Finish parallel coverage upload
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel-finished: true
 
     firefox:
         name: Firefox

@@ -10,49 +10,58 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node_versions: [10, 11, 12, 13, 14, 15, 16]
+                node-version: [18, 20, 22]
             fail-fast: true
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v4
 
-            - name: Use node ${{ matrix.node_version }}
-              uses: actions/setup-node@v1
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
               with:
-                  node-version: ${{ matrix.node_version }}
+                  version: 8
+
+            - name: Use Node ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: pnpm
 
             - name: Install
-              run: yarn install
+              run: pnpm install
 
             - name: Build
-              run: yarn build
+              run: pnpm build
 
             - name: Test
-              run: yarn test
+              run: pnpm test
 
-            - name: Coveralls
-              uses: coverallsapp/github-action@master
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v3
               with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  parallel: true
-
-            - name: Coveralls Complete
-              uses: coverallsapp/github-action@master
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  parallel-finished: true
+                  files: ./coverage/lcov.info
+                  flags: unittests
+                  fail_ci_if_error: false
 
     firefox:
         name: Firefox
         runs-on: windows-latest
         steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
+            - uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
               with:
-                  node-version: 14
-            - run: yarn install
-            - run: yarn build
-            - run: yarn test:browser
+                  version: 8
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+
+            - run: pnpm install
+            - run: pnpm build
+            - run: pnpm test:browser
               env:
                   BROWSER: firefox
 
@@ -60,13 +69,21 @@ jobs:
         name: Chrome
         runs-on: windows-latest
         steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
+            - uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
               with:
-                  node-version: 14
-            - run: yarn install
-            - run: yarn build
-            - run: yarn test:browser
+                  version: 8
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+
+            - run: pnpm install
+            - run: pnpm build
+            - run: pnpm test:browser
               env:
                   BROWSER: chrome
 
@@ -74,14 +91,22 @@ jobs:
         name: Safari
         runs-on: macos-latest
         steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
+            - uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
               with:
-                  node-version: 14
-            - run: yarn install
-            - run: yarn build
+                  version: 8
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+
+            - run: pnpm install
+            - run: pnpm build
             - run: |
                 sudo safaridriver --enable
-                yarn test:browser
+                pnpm test:browser
               env:
                   BROWSER: safari

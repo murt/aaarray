@@ -47,11 +47,13 @@ describe("aaarray#browser", () => {
                 }
 
                 case "firefox": {
+                    // eslint-disable-next-line @typescript-eslint/no-require-imports
                     require("geckodriver");
                     return Capabilities.firefox().set("acceptInsecureCerts", true);
                 }
 
                 case "chrome": {
+                    // eslint-disable-next-line @typescript-eslint/no-require-imports
                     require("chromedriver");
                     return Capabilities.chrome().set("chromeOptions", {
                         args: ["--headless", "--no-sandbox", "--disable-gpu"],

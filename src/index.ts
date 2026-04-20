@@ -28,6 +28,10 @@ export class AAArray<T> implements PromiseLike<T[]> {
             throw new TypeError("Cannot create AAArray from non-array value");
         }
     }
+    
+    public toString(): string {
+        return this.array.toString();
+    }
 
     /**
      * Concatenates values to the end of the array.
@@ -422,7 +426,7 @@ export class AAArray<T> implements PromiseLike<T[]> {
         await this.resolve();
     }
 
-    protected async run(arr: any[], action: AAActionDelegate): Promise<any[]> {
+    protected async run(arr: T[], action: AAActionDelegate): Promise<any[]> {
         switch (action.action) {
             case AAAction.EACH:
                 return this.runEach(arr, action as AAActionDelegate<AAIterCallback<T>>);

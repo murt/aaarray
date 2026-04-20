@@ -5,7 +5,7 @@ export default function timerPromise<T = any, P = any>(callback: (value: P) => T
                 try {
                     resolve(callback(...value));
                 } catch (err) {
-                    reject(err);
+                    reject(err as Error);
                 }
             }, timeout);
         });

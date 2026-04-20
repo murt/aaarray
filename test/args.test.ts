@@ -19,12 +19,12 @@ describe("aaarray?args", () => {
 
         it("should not allow a non-array value", () => {
             // @ts-expect-error
-            expect(() => AA(123)).toThrowError(TypeError);
+            expect(() => AA(123)).toThrow(TypeError);
         });
 
         it("should not allow strings although they are technically character arrays", () => {
             // @ts-expect-error
-            expect(() => AA("123")).toThrowError(TypeError);
+            expect(() => AA("123")).toThrow(TypeError);
         });
     });
 
@@ -52,7 +52,7 @@ describe("aaarray?args", () => {
         ] as (keyof AAArray<any>)[]).forEach(method => {
             it(method, () => {
                 // @ts-expect-error
-                expect(() => AA([1, 2, 3])[method]()).toThrowError(TypeError);
+                expect(() => AA([1, 2, 3])[method]()).toThrow(TypeError);
             });
         });
     });

@@ -1,7 +1,10 @@
 {
     "files": ["src/index.ts", "src/types.ts", "src/utils.ts", "src/decorators.ts"],
     "compilerOptions": {
-        "module": "CommonJS",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "target": "ES2022",
+        "lib": ["ES2022"],
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "noImplicitAny": true,
@@ -10,11 +13,8 @@
         "preserveConstEnums": true,
         "inlineSources": true,
         "sourceMap": true,
-        "outDir": "dist",
-        "target": "ES5",
-        "lib": ["esnext"],
         "declaration": true,
-        "declarationDir": "dist",
-        "declarationMap": true
+        "declarationMap": true,
+        "outDir": "dist"
     }
 }

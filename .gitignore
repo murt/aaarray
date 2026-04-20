@@ -4,3 +4,4 @@ coverage
 junit.xml
 *.tgz
 *.log
+test-results

@@ -1,9 +1,9 @@
 {
     "name": "aaarray",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "type": "module",
     "contributors": [
-        "murt <murt@unpossible.io>"
+        "murt <matt@clever.is>"
     ],
     "keywords": [
         "async",
@@ -16,34 +16,29 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/murt/aaarray.git"
+        "url": "https://github.com/murt/aaarray.git"
     },
     "license": "MIT",
-    "main": "dist/aaarray.js",
-    "types": "dist/aaarray.d.ts",
+    "main": "dist/index.mjs",
+    "types": "dist/index.d.mts",
     "scripts": {
         "clean": "del-cli dist coverage test-results",
-        "build": "vite build",
-        "test": "npm-run-all --serial clean test:lint build test:unit",
-        "test:lint": "eslint src test",
+        "check": "vp check",
+        "build": "vp pack",
+        "test": "npm-run-all --serial clean check build test:unit test:browser",
         "test:unit": "vitest run --coverage",
         "test:browser": "playwright test"
     },
     "devDependencies": {
-        "@eslint/js": "10.0.1",
         "@playwright/test": "1.59.1",
         "@types/node": "25.6.0",
         "@typescript-eslint/eslint-plugin": "8.58.2",
         "@typescript-eslint/parser": "8.58.2",
         "@vitest/coverage-v8": "4.1.4",
         "del-cli": "7.0.0",
-        "eslint": "10.2.1",
         "npm-run-all": "4.1.5",
         "typescript": "6.0.3",
-        "typescript-eslint": "8.58.2",
-        "vite": "8.0.8",
         "vite-plugin-dts": "4.5.4",
-        "vite-plus": "0.3.1",
-        "vitest": "4.1.4"
+        "vite-plus": "0.3.1"
     }
 }

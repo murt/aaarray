@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vite-plus";
 import dts from "vite-plugin-dts";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
@@ -13,7 +13,6 @@ export default defineConfig({
             entry: resolve(__dirname, "src/index.ts"),
             name: "AA",
             formats: ["umd"],
-            fileName: () => "aaarray.js",
         },
         target: "es2022",
         sourcemap: true,

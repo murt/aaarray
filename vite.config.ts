@@ -1,5 +1,4 @@
 import { defineConfig } from "vite-plus";
-import dts from "vite-plugin-dts";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
 import pkg from "./package.json" with { type: "json" };
@@ -7,7 +6,6 @@ import pkg from "./package.json" with { type: "json" };
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
-    plugins: [dts({ rollupTypes: true })],
     build: {
         lib: {
             entry: resolve(__dirname, "src/index.ts"),

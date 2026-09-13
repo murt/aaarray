@@ -38,7 +38,6 @@
         "del-cli": "7.0.0",
         "npm-run-all": "4.1.5",
         "typescript": "6.0.3",
-        "vite-plugin-dts": "4.5.4",
         "vite-plus": "0.3.1"
     }
 }

@@ -26,7 +26,7 @@
         "check": "vp check",
         "build": "vp pack",
         "test": "npm-run-all --serial clean check build test:unit test:browser",
-        "test:unit": "vp test --coverage",
+        "test:unit": "vp test run --coverage",
         "test:browser": "playwright test"
     },
     "devDependencies": {

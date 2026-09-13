@@ -14,16 +14,16 @@ test.describe("aaarray#browser", () => {
     });
 
     test("Should have an exported AA wrapper function", async ({ page }) => {
-        expect(await page.evaluate(() => typeof (window as any).AA.AA)).toBe("function");
+        expect(await page.evaluate(() => typeof (window as any).AA)).toBe("function");
     });
 
     test("Should have an exported AAArray class", async ({ page }) => {
-        expect(await page.evaluate(() => typeof (window as any).AA.AAArray)).toBe("function");
+        expect(await page.evaluate(() => typeof (window as any).AAArray)).toBe("function");
     });
 
     test("Should wait for AAArray to map", async ({ page }) => {
         const result = await page.evaluate(() =>
-            (window as any).AA.AA([1, 2, 3])
+            (window as any).AA([1, 2, 3])
                 .map((n: number) => n + 1)
                 .get(0)
         );

@@ -1,3 +1,5 @@
+import { describe, it, expect } from "vite-plus/test";
+
 import AA from "../src";
 
 describe("aaarray#find", () => {

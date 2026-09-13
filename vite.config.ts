@@ -23,6 +23,14 @@ export default defineConfig({
     },
     test: {
         include: ["test/*.test.ts"],
-        exclude: ["test/browser.test.ts"]
-    }
+        exclude: ["test/browser.test.ts"],
+    },
+    fmt: {
+        printWidth: 120,
+        trailingComma: "es5",
+        singleQuote: false,
+        quoteProps: "consistent",
+        tabWidth: 4,
+        useTabs: false,
+    },
 });
